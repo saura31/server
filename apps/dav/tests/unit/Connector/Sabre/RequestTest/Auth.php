@@ -7,30 +7,23 @@
  */
 namespace OCA\DAV\Tests\unit\Connector\Sabre\RequestTest;
 
+use OCP\IUserSession;
+use OCP\Server;
 use Sabre\DAV\Auth\Backend\BackendInterface;
 use Sabre\HTTP\RequestInterface;
 use Sabre\HTTP\ResponseInterface;
 
 class Auth implements BackendInterface {
 	/**
-	 * @var string
-	 */
-	private $user;
-
-	/**
-	 * @var string
-	 */
-	private $password;
-
-	/**
 	 * Auth constructor.
 	 *
 	 * @param string $user
 	 * @param string $password
 	 */
-	public function __construct($user, $password) {
-		$this->user = $user;
-		$this->password = $password;
+	public function __construct(
+		private $user,
+		private $password,
+	) {
 	}
 
 	/**
@@ -62,7 +55,7 @@ class Auth implements BackendInterface {
 	 * @return array
 	 */
 	public function check(RequestInterface $request, ResponseInterface $response) {
-		$userSession = \OC::$server->getUserSession();
+		$userSession = Server::get(IUserSession::class);
 		$result = $userSession->login($this->user, $this->password);
 		if ($result) {
 			//we need to pass the user name, which may differ from login name

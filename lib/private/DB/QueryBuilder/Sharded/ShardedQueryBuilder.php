@@ -41,8 +41,8 @@ class ShardedQueryBuilder extends ExtendedQueryBuilder {
 	private string $mainTable = '';
 
 	public function __construct(
-		IQueryBuilder                  $builder,
-		protected array                  $shardDefinitions,
+		IQueryBuilder $builder,
+		protected array $shardDefinitions,
 		protected ShardConnectionManager $shardConnectionManager,
 		protected AutoIncrementHandler $autoIncrementHandler,
 	) {
@@ -277,7 +277,7 @@ class ShardedQueryBuilder extends ExtendedQueryBuilder {
 
 	public function addOrderBy($sort, $order = null) {
 		$this->registerOrder((string)$sort, (string)$order ?? 'ASC');
-		return parent::orderBy($sort, $order);
+		return parent::addOrderBy($sort, $order);
 	}
 
 	public function orderBy($sort, $order = null) {
@@ -296,7 +296,7 @@ class ShardedQueryBuilder extends ExtendedQueryBuilder {
 		];
 	}
 
-	public function hintShardKey(string $column, mixed $value, bool $overwrite = false) {
+	public function hintShardKey(string $column, mixed $value, bool $overwrite = false): self {
 		if ($overwrite) {
 			$this->primaryKeys = [];
 			$this->shardKeys = [];
@@ -310,7 +310,7 @@ class ShardedQueryBuilder extends ExtendedQueryBuilder {
 		return $this;
 	}
 
-	public function runAcrossAllShards() {
+	public function runAcrossAllShards(): self {
 		$this->allShards = true;
 		return $this;
 	}

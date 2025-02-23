@@ -8,7 +8,11 @@ namespace OCA\Files_Sharing\Tests;
 
 use OC\Files\Filesystem;
 use OC\Files\View;
+use OCP\Constants;
+use OCP\IUserManager;
 use OCP\Lock\ILockingProvider;
+use OCP\Lock\LockedException;
+use OCP\Server;
 use OCP\Share\IShare;
 
 /**
@@ -31,7 +35,7 @@ class LockingTest extends TestCase {
 		parent::setUp();
 
 		$this->userBackend = new \Test\Util\User\Dummy();
-		\OC::$server->getUserManager()->registerBackend($this->userBackend);
+		Server::get(IUserManager::class)->registerBackend($this->userBackend);
 
 		$this->ownerUid = $this->getUniqueID('owner_');
 		$this->recipientUid = $this->getUniqueID('recipient_');
@@ -48,7 +52,7 @@ class LockingTest extends TestCase {
 			'/foo/bar.txt',
 			$this->ownerUid,
 			$this->recipientUid,
-			\OCP\Constants::PERMISSION_READ | \OCP\Constants::PERMISSION_UPDATE | \OCP\Constants::PERMISSION_SHARE
+			Constants::PERMISSION_READ | Constants::PERMISSION_UPDATE | Constants::PERMISSION_SHARE
 		);
 
 		$this->loginAsUser($this->recipientUid);
@@ -56,13 +60,13 @@ class LockingTest extends TestCase {
 	}
 
 	protected function tearDown(): void {
-		\OC::$server->getUserManager()->removeBackend($this->userBackend);
+		Server::get(IUserManager::class)->removeBackend($this->userBackend);
 		parent::tearDown();
 	}
 
 
-	public function testLockAsRecipient() {
-		$this->expectException(\OCP\Lock\LockedException::class);
+	public function testLockAsRecipient(): void {
+		$this->expectException(LockedException::class);
 
 		$this->loginAsUser($this->ownerUid);
 
@@ -73,7 +77,7 @@ class LockingTest extends TestCase {
 		Filesystem::rename('/foo', '/asd');
 	}
 
-	public function testUnLockAsRecipient() {
+	public function testUnLockAsRecipient(): void {
 		$this->loginAsUser($this->ownerUid);
 
 		Filesystem::initMountPoints($this->recipientUid);
@@ -84,7 +88,7 @@ class LockingTest extends TestCase {
 		$this->assertTrue(Filesystem::rename('/foo', '/asd'));
 	}
 
-	public function testChangeLock() {
+	public function testChangeLock(): void {
 		Filesystem::initMountPoints($this->recipientUid);
 		$recipientView = new View('/' . $this->recipientUid . '/files');
 		$recipientView->lockFile('bar.txt', ILockingProvider::LOCK_SHARED);

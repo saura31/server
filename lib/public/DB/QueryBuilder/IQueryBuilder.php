@@ -10,6 +10,7 @@ namespace OCP\DB\QueryBuilder;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Types\Types;
 use OCP\DB\Exception;
 use OCP\DB\IResult;
 use OCP\IDBConnection;
@@ -28,7 +29,7 @@ interface IQueryBuilder {
 	/**
 	 * @since 9.0.0
 	 */
-	public const PARAM_BOOL = ParameterType::BOOLEAN;
+	public const PARAM_BOOL = Types::BOOLEAN;
 	/**
 	 * @since 9.0.0
 	 */
@@ -41,10 +42,60 @@ interface IQueryBuilder {
 	 * @since 9.0.0
 	 */
 	public const PARAM_LOB = ParameterType::LARGE_OBJECT;
+
 	/**
 	 * @since 9.0.0
+	 * @deprecated 31.0.0 - use PARAM_DATETIME_MUTABLE instead
 	 */
-	public const PARAM_DATE = 'datetime';
+	public const PARAM_DATE = Types::DATETIME_MUTABLE;
+
+	/**
+	 * For passing a \DateTime instance when only interested in the time part (without timezone support)
+	 * @since 31.0.0
+	 */
+	public const PARAM_TIME_MUTABLE = Types::TIME_MUTABLE;
+
+	/**
+	 * For passing a \DateTime instance when only interested in the date part (without timezone support)
+	 * @since 31.0.0
+	 */
+	public const PARAM_DATE_MUTABLE = Types::DATE_MUTABLE;
+
+	/**
+	 * For passing a \DateTime instance (without timezone support)
+	 * @since 31.0.0
+	 */
+	public const PARAM_DATETIME_MUTABLE = Types::DATETIME_MUTABLE;
+
+	/**
+	 * For passing a \DateTime instance with timezone support
+	 * @since 31.0.0
+	 */
+	public const PARAM_DATETIME_TZ_MUTABLE = Types::DATETIMETZ_MUTABLE;
+
+	/**
+	 * For passing a \DateTimeImmutable instance when only interested in the time part (without timezone support)
+	 * @since 31.0.0
+	 */
+	public const PARAM_TIME_IMMUTABLE = Types::TIME_MUTABLE;
+
+	/**
+	 * For passing a \DateTime instance when only interested in the date part (without timezone support)
+	 * @since 9.0.0
+	 */
+	public const PARAM_DATE_IMMUTABLE = Types::DATE_IMMUTABLE;
+
+	/**
+	 * For passing a \DateTime instance (without timezone support)
+	 * @since 31.0.0
+	 */
+	public const PARAM_DATETIME_IMMUTABLE = Types::DATETIME_IMMUTABLE;
+
+	/**
+	 * For passing a \DateTime instance with timezone support
+	 * @since 31.0.0
+	 */
+	public const PARAM_DATETIME_TZ_IMMUTABLE = Types::DATETIMETZ_IMMUTABLE;
 
 	/**
 	 * @since 24.0.0
@@ -1040,7 +1091,7 @@ interface IQueryBuilder {
 	 * @return $this
 	 * @since 30.0.0
 	 */
-	public function hintShardKey(string $column, mixed $value, bool $overwrite = false);
+	public function hintShardKey(string $column, mixed $value, bool $overwrite = false): self;
 
 	/**
 	 * Set the query to run across all shards if sharding is enabled.
@@ -1048,7 +1099,7 @@ interface IQueryBuilder {
 	 * @return $this
 	 * @since 30.0.0
 	 */
-	public function runAcrossAllShards();
+	public function runAcrossAllShards(): self;
 
 	/**
 	 * Get a list of column names that are expected in the query output

@@ -12,8 +12,11 @@ use OC\Files\Storage\Temporary;
 use OCA\Files\BackgroundJob\ScanFiles;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\EventDispatcher\IEventDispatcher;
+use OCP\Files\Config\IUserMountCache;
 use OCP\IConfig;
+use OCP\IDBConnection;
 use OCP\IUser;
+use OCP\Server;
 use Psr\Log\LoggerInterface;
 use Test\TestCase;
 use Test\Traits\MountProviderTrait;
@@ -31,7 +34,7 @@ class ScanFilesTest extends TestCase {
 
 	/** @var ScanFiles */
 	private $scanFiles;
-	/** @var \OCP\Files\Config\IUserMountCache */
+	/** @var IUserMountCache */
 	private $mountCache;
 
 	protected function setUp(): void {
@@ -40,8 +43,8 @@ class ScanFilesTest extends TestCase {
 		$config = $this->createMock(IConfig::class);
 		$dispatcher = $this->createMock(IEventDispatcher::class);
 		$logger = $this->createMock(LoggerInterface::class);
-		$connection = \OC::$server->getDatabaseConnection();
-		$this->mountCache = \OC::$server->getUserMountCache();
+		$connection = Server::get(IDBConnection::class);
+		$this->mountCache = Server::get(IUserMountCache::class);
 
 		$this->scanFiles = $this->getMockBuilder('\OCA\Files\BackgroundJob\ScanFiles')
 			->setConstructorArgs([
@@ -79,7 +82,7 @@ class ScanFilesTest extends TestCase {
 		return $storage;
 	}
 
-	public function testAllScanned() {
+	public function testAllScanned(): void {
 		$this->setupStorage('foouser', '/foousers/files/foo');
 
 		$this->scanFiles->expects($this->never())
@@ -87,7 +90,7 @@ class ScanFilesTest extends TestCase {
 		$this->runJob();
 	}
 
-	public function testUnscanned() {
+	public function testUnscanned(): void {
 		$storage = $this->setupStorage('foouser', '/foousers/files/foo');
 		$storage->getCache()->put('foo', ['size' => -1]);
 

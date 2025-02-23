@@ -41,6 +41,7 @@ OC.L10N.register(
     "Flow" : "흐름",
     "Nextcloud workflow engine" : "Nextcloud 작업 흐름 엔진",
     "Select a filter" : "필터 선택",
+    "Remove filter" : "필터 삭제",
     "Select a file type" : "파일 타입 선택",
     "Folder" : "폴더",
     "Images" : "파일",
@@ -101,7 +102,6 @@ OC.L10N.register(
     "not between" : "사이에 없음",
     "Request user agent" : "요청 사용자 에이전트",
     "is member of" : "구성원임",
-    "is not member of" : "구성원이 아님",
-    "User group membership" : "사용자 그룹 구성원"
+    "is not member of" : "구성원이 아님"
 },
 "nplurals=1; plural=0;");

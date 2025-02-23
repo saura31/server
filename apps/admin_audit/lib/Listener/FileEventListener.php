@@ -15,6 +15,7 @@ use OCP\EventDispatcher\IEventListener;
 use OCP\Files\InvalidPathException;
 use OCP\Files\NotFoundException;
 use OCP\Preview\BeforePreviewFetchedEvent;
+use OCP\Server;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -47,8 +48,8 @@ class FileEventListener extends Action implements IEventListener {
 				array_keys($params)
 			);
 		} catch (InvalidPathException|NotFoundException $e) {
-			\OCP\Server::get(LoggerInterface::class)->error(
-				'Exception thrown in file preview: '.$e->getMessage(), ['app' => 'admin_audit', 'exception' => $e]
+			Server::get(LoggerInterface::class)->error(
+				'Exception thrown in file preview: ' . $e->getMessage(), ['app' => 'admin_audit', 'exception' => $e]
 			);
 			return;
 		}

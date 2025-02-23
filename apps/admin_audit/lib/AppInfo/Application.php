@@ -34,16 +34,16 @@ use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\Authentication\Events\AnyLoginFailedEvent;
 use OCP\Authentication\TwoFactorAuth\TwoFactorProviderChallengeFailed;
 use OCP\Authentication\TwoFactorAuth\TwoFactorProviderChallengePassed;
 use OCP\Console\ConsoleEvent;
 use OCP\EventDispatcher\IEventDispatcher;
+use OCP\Files\Events\Node\BeforeNodeDeletedEvent;
 use OCP\Files\Events\Node\BeforeNodeReadEvent;
 use OCP\Files\Events\Node\BeforeNodeRenamedEvent;
-use OCP\Files\Events\Node\BeforeNodeWrittenEvent;
 use OCP\Files\Events\Node\NodeCopiedEvent;
 use OCP\Files\Events\Node\NodeCreatedEvent;
-use OCP\Files\Events\Node\NodeDeletedEvent;
 use OCP\Files\Events\Node\NodeRenamedEvent;
 use OCP\Files\Events\Node\NodeWrittenEvent;
 use OCP\Group\Events\GroupCreatedEvent;
@@ -57,6 +57,7 @@ use OCP\Preview\BeforePreviewFetchedEvent;
 use OCP\Share;
 use OCP\Share\Events\ShareCreatedEvent;
 use OCP\Share\Events\ShareDeletedEvent;
+use OCP\SystemTag\ManagerEvent;
 use OCP\User\Events\BeforeUserLoggedInEvent;
 use OCP\User\Events\BeforeUserLoggedOutEvent;
 use OCP\User\Events\PasswordUpdatedEvent;
@@ -105,6 +106,7 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(UserLoggedInWithCookieEvent::class, AuthEventListener::class);
 		$context->registerEventListener(UserLoggedInEvent::class, AuthEventListener::class);
 		$context->registerEventListener(BeforeUserLoggedOutEvent::class, AuthEventListener::class);
+		$context->registerEventListener(AnyLoginFailedEvent::class, AuthEventListener::class);
 
 		// File events
 		$context->registerEventListener(BeforePreviewFetchedEvent::class, FileEventListener::class);
@@ -157,7 +159,7 @@ class Application extends App implements IBootstrap {
 
 	private function tagHooks(IAuditLogger $logger,
 		IEventDispatcher $eventDispatcher): void {
-		$eventDispatcher->addListener(\OCP\SystemTag\ManagerEvent::EVENT_CREATE, function (\OCP\SystemTag\ManagerEvent $event) use ($logger) {
+		$eventDispatcher->addListener(ManagerEvent::EVENT_CREATE, function (ManagerEvent $event) use ($logger): void {
 			$tagActions = new TagManagement($logger);
 			$tagActions->createTag($event->getTag());
 		});
@@ -168,56 +170,49 @@ class Application extends App implements IBootstrap {
 
 		$eventDispatcher->addListener(
 			BeforeNodeRenamedEvent::class,
-			function (BeforeNodeRenamedEvent $event) use ($fileActions) {
+			function (BeforeNodeRenamedEvent $event) use ($fileActions): void {
 				$fileActions->beforeRename($event);
 			}
 		);
 
 		$eventDispatcher->addListener(
 			NodeRenamedEvent::class,
-			function (NodeRenamedEvent $event) use ($fileActions) {
+			function (NodeRenamedEvent $event) use ($fileActions): void {
 				$fileActions->afterRename($event);
 			}
 		);
 
 		$eventDispatcher->addListener(
 			NodeCreatedEvent::class,
-			function (NodeCreatedEvent $event) use ($fileActions) {
+			function (NodeCreatedEvent $event) use ($fileActions): void {
 				$fileActions->create($event);
 			}
 		);
 
 		$eventDispatcher->addListener(
 			NodeCopiedEvent::class,
-			function (NodeCopiedEvent $event) use ($fileActions) {
+			function (NodeCopiedEvent $event) use ($fileActions): void {
 				$fileActions->copy($event);
 			}
 		);
 
 		$eventDispatcher->addListener(
-			BeforeNodeWrittenEvent::class,
-			function (BeforeNodeWrittenEvent $event) use ($fileActions) {
+			NodeWrittenEvent::class,
+			function (NodeWrittenEvent $event) use ($fileActions): void {
 				$fileActions->write($event);
 			}
 		);
 
 		$eventDispatcher->addListener(
-			NodeWrittenEvent::class,
-			function (NodeWrittenEvent $event) use ($fileActions) {
-				$fileActions->update($event);
-			}
-		);
-
-		$eventDispatcher->addListener(
 			BeforeNodeReadEvent::class,
-			function (BeforeNodeReadEvent $event) use ($fileActions) {
+			function (BeforeNodeReadEvent $event) use ($fileActions): void {
 				$fileActions->read($event);
 			}
 		);
 
 		$eventDispatcher->addListener(
-			NodeDeletedEvent::class,
-			function (NodeDeletedEvent $event) use ($fileActions) {
+			BeforeNodeDeletedEvent::class,
+			function (BeforeNodeDeletedEvent $event) use ($fileActions): void {
 				$fileActions->delete($event);
 			}
 		);

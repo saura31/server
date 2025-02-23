@@ -5,6 +5,7 @@
 <template>
 	<NcListItem class="version"
 		:force-display-actions="true"
+		:actions-aria-label="t('files_versions', 'Actions for version from {versionHumanExplicitDate}', { versionHumanExplicitDate })"
 		:data-files-versions-version="version.fileVersion"
 		@click="click">
 		<!-- Icon -->
@@ -109,10 +110,11 @@
 		</template>
 	</NcListItem>
 </template>
-
 <script lang="ts">
 import type { PropType } from 'vue'
 import type { Version } from '../utils/versions'
+
+import { defineComponent } from 'vue'
 
 import BackupRestore from 'vue-material-design-icons/BackupRestore.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
@@ -121,21 +123,20 @@ import FileCompare from 'vue-material-design-icons/FileCompare.vue'
 import ImageOffOutline from 'vue-material-design-icons/ImageOffOutline.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 
-import NcActionButton from '@nextcloud/vue/dist/Components/NcActionButton.js'
-import NcActionLink from '@nextcloud/vue/dist/Components/NcActionLink.js'
-import NcAvatar from '@nextcloud/vue/dist/Components/NcAvatar.js'
-import NcDateTime from '@nextcloud/vue/dist/Components/NcDateTime.js'
-import NcListItem from '@nextcloud/vue/dist/Components/NcListItem.js'
-import Tooltip from '@nextcloud/vue/dist/Directives/Tooltip.js'
+import NcActionButton from '@nextcloud/vue/components/NcActionButton'
+import NcActionLink from '@nextcloud/vue/components/NcActionLink'
+import NcAvatar from '@nextcloud/vue/components/NcAvatar'
+import NcDateTime from '@nextcloud/vue/components/NcDateTime'
+import NcListItem from '@nextcloud/vue/components/NcListItem'
+import Tooltip from '@nextcloud/vue/directives/Tooltip'
 
-import { getRootUrl, generateOcsUrl } from '@nextcloud/router'
-import { joinPaths } from '@nextcloud/paths'
-import { loadState } from '@nextcloud/initial-state'
 import { Permission, formatFileSize } from '@nextcloud/files'
-import { translate as t } from '@nextcloud/l10n'
-import { defineComponent } from 'vue'
-
+import { loadState } from '@nextcloud/initial-state'
+import { t } from '@nextcloud/l10n'
+import { joinPaths } from '@nextcloud/paths'
+import { getRootUrl, generateOcsUrl } from '@nextcloud/router'
 import axios from '@nextcloud/axios'
+import moment from '@nextcloud/moment'
 
 const hasPermission = (permissions: number, permission: number): boolean => (permissions & permission) !== 0
 
@@ -198,7 +199,7 @@ export default defineComponent({
 			previewLoaded: false,
 			previewErrored: false,
 			capabilities: loadState('core', 'capabilities', { files: { version_labeling: false, version_deletion: false } }),
-			versionAuthor: '',
+			versionAuthor: '' as string | null,
 		}
 	},
 
@@ -223,6 +224,10 @@ export default defineComponent({
 			}
 
 			return label
+		},
+
+		versionHumanExplicitDate(): string {
+			return moment(this.version.mtime).format('LLLL')
 		},
 
 		downloadURL(): string {

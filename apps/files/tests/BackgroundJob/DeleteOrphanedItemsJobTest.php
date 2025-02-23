@@ -11,6 +11,7 @@ use OCA\Files\BackgroundJob\DeleteOrphanedItems;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
+use OCP\Server;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -27,9 +28,9 @@ class DeleteOrphanedItemsJobTest extends \Test\TestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
-		$this->connection = \OC::$server->get(IDBConnection::class);
+		$this->connection = Server::get(IDBConnection::class);
 		$this->timeFactory = $this->createMock(ITimeFactory::class);
-		$this->logger = \OC::$server->get(LoggerInterface::class);
+		$this->logger = Server::get(LoggerInterface::class);
 	}
 
 	protected function cleanMapping($table) {
@@ -51,7 +52,7 @@ class DeleteOrphanedItemsJobTest extends \Test\TestCase {
 	/**
 	 * Test clearing orphaned system tag mappings
 	 */
-	public function testClearSystemTagMappings() {
+	public function testClearSystemTagMappings(): void {
 		$this->cleanMapping('systemtag_object_mapping');
 
 		$query = $this->connection->getQueryBuilder();
@@ -100,7 +101,7 @@ class DeleteOrphanedItemsJobTest extends \Test\TestCase {
 	/**
 	 * Test clearing orphaned system tag mappings
 	 */
-	public function testClearUserTagMappings() {
+	public function testClearUserTagMappings(): void {
 		$this->cleanMapping('vcategory_to_object');
 
 		$query = $this->connection->getQueryBuilder();
@@ -149,7 +150,7 @@ class DeleteOrphanedItemsJobTest extends \Test\TestCase {
 	/**
 	 * Test clearing orphaned system tag mappings
 	 */
-	public function testClearComments() {
+	public function testClearComments(): void {
 		$this->cleanMapping('comments');
 
 		$query = $this->connection->getQueryBuilder();
@@ -200,7 +201,7 @@ class DeleteOrphanedItemsJobTest extends \Test\TestCase {
 	/**
 	 * Test clearing orphaned system tag mappings
 	 */
-	public function testClearCommentReadMarks() {
+	public function testClearCommentReadMarks(): void {
 		$this->cleanMapping('comments_read_markers');
 
 		$query = $this->connection->getQueryBuilder();

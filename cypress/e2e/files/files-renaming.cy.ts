@@ -4,7 +4,7 @@
  */
 
 import type { User } from '@nextcloud/cypress'
-import { getRowForFile, haveValidity, triggerActionForFile } from './FilesUtils'
+import { calculateViewportHeight, createFolder, getRowForFile, haveValidity, renameFile, triggerActionForFile } from './FilesUtils'
 
 describe('files: Rename nodes', { testIsolation: true }, () => {
 	let user: User
@@ -12,7 +12,12 @@ describe('files: Rename nodes', { testIsolation: true }, () => {
 	beforeEach(() => cy.createRandomUser().then(($user) => {
 		user = $user
 
+		// remove welcome file
+		cy.rm(user, '/welcome.txt')
+		// create a file called "file.txt"
 		cy.uploadContent(user, new Blob([]), 'text/plain', '/file.txt')
+
+		// login and visit files app
 		cy.login(user)
 		cy.visit('/apps/files')
 	}))
@@ -114,5 +119,141 @@ describe('files: Rename nodes', { testIsolation: true }, () => {
 		getRowForFile('new-name.txt')
 			.findByRole('img', { name: 'File is loading' })
 			.should('not.exist')
+	})
+
+	it('cancel renaming on esc press', () => {
+		// All are visible by default
+		getRowForFile('file.txt').should('be.visible')
+
+		triggerActionForFile('file.txt', 'rename')
+
+		getRowForFile('file.txt')
+			.findByRole('textbox', { name: 'Filename' })
+			.should('be.visible')
+			.type('{selectAll}other.txt')
+			.should(haveValidity(''))
+			.type('{esc}')
+
+		// See it is not renamed
+		getRowForFile('other.txt').should('not.exist')
+		getRowForFile('file.txt')
+			.should('be.visible')
+			.find('input[type="text"]')
+			.should('not.exist')
+	})
+
+	it('cancel on enter if no new name is entered', () => {
+		// All are visible by default
+		getRowForFile('file.txt').should('be.visible')
+
+		triggerActionForFile('file.txt', 'rename')
+
+		getRowForFile('file.txt')
+			.findByRole('textbox', { name: 'Filename' })
+			.should('be.visible')
+			.type('{enter}')
+
+		// See it is not renamed
+		getRowForFile('file.txt')
+			.should('be.visible')
+			.find('input[type="text"]')
+			.should('not.exist')
+	})
+
+	/**
+	 * This is a regression test of: https://github.com/nextcloud/server/issues/47438
+	 * The issue was that the renaming state was not reset when the new name moved the file out of the view of the current files list
+	 * due to virtual scrolling the renaming state was not changed then by the UI events (as the component was taken out of DOM before any event handling).
+	 */
+	it('correctly resets renaming state', () => {
+		// Create 19 additional files
+		for (let i = 1; i <= 19; i++) {
+			cy.uploadContent(user, new Blob([]), 'text/plain', `/file${i}.txt`)
+		}
+
+		// Calculate and setup a viewport where only the first 4 files are visible, causing 6 rows to be rendered
+		cy.viewport(768, 500)
+		cy.login(user)
+		calculateViewportHeight(4)
+			.then((height) => cy.viewport(768, height))
+
+		cy.visit('/apps/files')
+
+		getRowForFile('file.txt').should('be.visible')
+		// Z so it is shown last
+		renameFile('file.txt', 'zzz.txt')
+		// not visible any longer
+		getRowForFile('zzz.txt').should('not.exist')
+		// scroll file list to bottom
+		cy.get('[data-cy-files-list]').scrollTo('bottom')
+		cy.screenshot()
+		// The file is no longer in rename state
+		getRowForFile('zzz.txt')
+			.should('be.visible')
+			.findByRole('textbox', { name: 'Filename' })
+			.should('not.exist')
+	})
+
+	it('shows warning on extension change', () => {
+		getRowForFile('file.txt').should('be.visible')
+
+		triggerActionForFile('file.txt', 'rename')
+		getRowForFile('file.txt')
+			.findByRole('textbox', { name: 'Filename' })
+			.should('be.visible')
+			.type('{selectAll}file.md')
+			.should(haveValidity(''))
+			.type('{enter}')
+
+		// See warning dialog
+		cy.findByRole('dialog', { name: 'Change file extension' })
+			.should('be.visible')
+			.findByRole('button', { name: /use/i })
+			.click()
+
+		// See it is renamed
+		getRowForFile('file.md').should('be.visible')
+	})
+
+	it('shows warning on extension change and allow cancellation', () => {
+		getRowForFile('file.txt').should('be.visible')
+
+		triggerActionForFile('file.txt', 'rename')
+		getRowForFile('file.txt')
+			.findByRole('textbox', { name: 'Filename' })
+			.should('be.visible')
+			.type('{selectAll}file.md')
+			.should(haveValidity(''))
+			.type('{enter}')
+
+		// See warning dialog
+		cy.findByRole('dialog', { name: 'Change file extension' })
+			.should('be.visible')
+			.findByRole('button', { name: /keep/i })
+			.click()
+
+		// See it is not renamed
+		getRowForFile('file.txt').should('be.visible')
+		getRowForFile('file.md').should('not.exist')
+	})
+
+	it('does not show warning on folder renaming with a dot', () => {
+		createFolder('folder.2024')
+
+		getRowForFile('folder.2024').should('be.visible')
+
+		triggerActionForFile('folder.2024', 'rename')
+		getRowForFile('folder.2024')
+			.findByRole('textbox', { name: 'Folder name' })
+			.should('be.visible')
+			.type('{selectAll}folder.2025')
+			.should(haveValidity(''))
+			.type('{enter}')
+
+		// See warning dialog
+		cy.get('[role=dialog]').should('not.exist')
+
+		// See it is not renamed
+		getRowForFile('folder.2025').should('be.visible')
 	})
 })

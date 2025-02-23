@@ -42,7 +42,7 @@ class DnsPinMiddlewareTest extends TestCase {
 			->getMock();
 	}
 
-	public function testPopulateDnsCacheIPv4() {
+	public function testPopulateDnsCacheIPv4(): void {
 		$mockHandler = new MockHandler([
 			static function (RequestInterface $request, array $options) {
 				self::arrayHasKey('curl', $options);
@@ -135,7 +135,7 @@ class DnsPinMiddlewareTest extends TestCase {
 		);
 	}
 
-	public function testPopulateDnsCacheIPv6() {
+	public function testPopulateDnsCacheIPv6(): void {
 		$mockHandler = new MockHandler([
 			static function (RequestInterface $request, array $options) {
 				self::arrayHasKey('curl', $options);
@@ -250,7 +250,7 @@ class DnsPinMiddlewareTest extends TestCase {
 		);
 	}
 
-	public function testAllowLocalAddress() {
+	public function testAllowLocalAddress(): void {
 		$mockHandler = new MockHandler([
 			static function (RequestInterface $request, array $options) {
 				self::assertArrayNotHasKey('curl', $options);
@@ -268,7 +268,7 @@ class DnsPinMiddlewareTest extends TestCase {
 		);
 	}
 
-	public function testRejectIPv4() {
+	public function testRejectIPv4(): void {
 		$this->expectException(LocalServerException::class);
 		$this->expectExceptionMessage('violates local access rules');
 
@@ -315,7 +315,7 @@ class DnsPinMiddlewareTest extends TestCase {
 		);
 	}
 
-	public function testRejectIPv6() {
+	public function testRejectIPv6(): void {
 		$this->expectException(LocalServerException::class);
 		$this->expectExceptionMessage('violates local access rules');
 
@@ -362,7 +362,7 @@ class DnsPinMiddlewareTest extends TestCase {
 		);
 	}
 
-	public function testRejectCanonicalName() {
+	public function testRejectCanonicalName(): void {
 		$this->expectException(LocalServerException::class);
 		$this->expectExceptionMessage('violates local access rules');
 
@@ -452,7 +452,7 @@ class DnsPinMiddlewareTest extends TestCase {
 		);
 	}
 
-	public function testRejectFaultyResponse() {
+	public function testRejectFaultyResponse(): void {
 		$this->expectException(LocalServerException::class);
 		$this->expectExceptionMessage('No DNS record found for www.example.com');
 
@@ -478,7 +478,7 @@ class DnsPinMiddlewareTest extends TestCase {
 		);
 	}
 
-	public function testIgnoreSubdomainForSoaQuery() {
+	public function testIgnoreSubdomainForSoaQuery(): void {
 		$mockHandler = new MockHandler([
 			static function (RequestInterface $request, array $options) {
 				// The handler should not be called
@@ -537,10 +537,11 @@ class DnsPinMiddlewareTest extends TestCase {
 			['nextcloud' => ['allow_local_address' => false]]
 		);
 
-		$this->assertCount(4, $dnsQueries);
+		$this->assertCount(3, $dnsQueries);
 		$this->assertContains('example.com' . DNS_SOA, $dnsQueries);
 		$this->assertContains('subsubdomain.subdomain.example.com' . DNS_A, $dnsQueries);
 		$this->assertContains('subsubdomain.subdomain.example.com' . DNS_AAAA, $dnsQueries);
-		$this->assertContains('subsubdomain.subdomain.example.com' . DNS_CNAME, $dnsQueries);
+		// CNAME should not be queried if A or AAAA succeeded already
+		$this->assertNotContains('subsubdomain.subdomain.example.com' . DNS_CNAME, $dnsQueries);
 	}
 }

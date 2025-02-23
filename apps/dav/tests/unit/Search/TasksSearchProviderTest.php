@@ -38,67 +38,67 @@ class TasksSearchProviderTest extends TestCase {
 	private $provider;
 
 	// NO DUE NOR COMPLETED NOR SUMMARY
-	private $vTodo0 = 'BEGIN:VCALENDAR'.PHP_EOL.
-		'PRODID:TEST'.PHP_EOL.
-		'VERSION:2.0'.PHP_EOL.
-		'BEGIN:VTODO'.PHP_EOL.
-		'UID:20070313T123432Z-456553@example.com'.PHP_EOL.
-		'DTSTAMP:20070313T123432Z'.PHP_EOL.
-		'STATUS:NEEDS-ACTION'.PHP_EOL.
-		'END:VTODO'.PHP_EOL.
+	private $vTodo0 = 'BEGIN:VCALENDAR' . PHP_EOL .
+		'PRODID:TEST' . PHP_EOL .
+		'VERSION:2.0' . PHP_EOL .
+		'BEGIN:VTODO' . PHP_EOL .
+		'UID:20070313T123432Z-456553@example.com' . PHP_EOL .
+		'DTSTAMP:20070313T123432Z' . PHP_EOL .
+		'STATUS:NEEDS-ACTION' . PHP_EOL .
+		'END:VTODO' . PHP_EOL .
 		'END:VCALENDAR';
 
 	// DUE AND COMPLETED
-	private $vTodo1 = 'BEGIN:VCALENDAR'.PHP_EOL.
-		'PRODID:TEST'.PHP_EOL.
-		'VERSION:2.0'.PHP_EOL.
-		'BEGIN:VTODO'.PHP_EOL.
-		'UID:20070313T123432Z-456553@example.com'.PHP_EOL.
-		'DTSTAMP:20070313T123432Z'.PHP_EOL.
-		'COMPLETED:20070707T100000Z'.PHP_EOL.
-		'DUE;VALUE=DATE:20070501'.PHP_EOL.
-		'SUMMARY:Task title'.PHP_EOL.
-		'STATUS:NEEDS-ACTION'.PHP_EOL.
-		'END:VTODO'.PHP_EOL.
+	private $vTodo1 = 'BEGIN:VCALENDAR' . PHP_EOL .
+		'PRODID:TEST' . PHP_EOL .
+		'VERSION:2.0' . PHP_EOL .
+		'BEGIN:VTODO' . PHP_EOL .
+		'UID:20070313T123432Z-456553@example.com' . PHP_EOL .
+		'DTSTAMP:20070313T123432Z' . PHP_EOL .
+		'COMPLETED:20070707T100000Z' . PHP_EOL .
+		'DUE;VALUE=DATE:20070501' . PHP_EOL .
+		'SUMMARY:Task title' . PHP_EOL .
+		'STATUS:NEEDS-ACTION' . PHP_EOL .
+		'END:VTODO' . PHP_EOL .
 		'END:VCALENDAR';
 
 	// COMPLETED ONLY
-	private $vTodo2 = 'BEGIN:VCALENDAR'.PHP_EOL.
-		'PRODID:TEST'.PHP_EOL.
-		'VERSION:2.0'.PHP_EOL.
-		'BEGIN:VTODO'.PHP_EOL.
-		'UID:20070313T123432Z-456553@example.com'.PHP_EOL.
-		'DTSTAMP:20070313T123432Z'.PHP_EOL.
-		'COMPLETED:20070707T100000Z'.PHP_EOL.
-		'SUMMARY:Task title'.PHP_EOL.
-		'STATUS:NEEDS-ACTION'.PHP_EOL.
-		'END:VTODO'.PHP_EOL.
+	private $vTodo2 = 'BEGIN:VCALENDAR' . PHP_EOL .
+		'PRODID:TEST' . PHP_EOL .
+		'VERSION:2.0' . PHP_EOL .
+		'BEGIN:VTODO' . PHP_EOL .
+		'UID:20070313T123432Z-456553@example.com' . PHP_EOL .
+		'DTSTAMP:20070313T123432Z' . PHP_EOL .
+		'COMPLETED:20070707T100000Z' . PHP_EOL .
+		'SUMMARY:Task title' . PHP_EOL .
+		'STATUS:NEEDS-ACTION' . PHP_EOL .
+		'END:VTODO' . PHP_EOL .
 		'END:VCALENDAR';
 
 	// DUE DATE
-	private $vTodo3 = 'BEGIN:VCALENDAR'.PHP_EOL.
-		'PRODID:TEST'.PHP_EOL.
-		'VERSION:2.0'.PHP_EOL.
-		'BEGIN:VTODO'.PHP_EOL.
-		'UID:20070313T123432Z-456553@example.com'.PHP_EOL.
-		'DTSTAMP:20070313T123432Z'.PHP_EOL.
-		'DUE;VALUE=DATE:20070501'.PHP_EOL.
-		'SUMMARY:Task title'.PHP_EOL.
-		'STATUS:NEEDS-ACTION'.PHP_EOL.
-		'END:VTODO'.PHP_EOL.
+	private $vTodo3 = 'BEGIN:VCALENDAR' . PHP_EOL .
+		'PRODID:TEST' . PHP_EOL .
+		'VERSION:2.0' . PHP_EOL .
+		'BEGIN:VTODO' . PHP_EOL .
+		'UID:20070313T123432Z-456553@example.com' . PHP_EOL .
+		'DTSTAMP:20070313T123432Z' . PHP_EOL .
+		'DUE;VALUE=DATE:20070501' . PHP_EOL .
+		'SUMMARY:Task title' . PHP_EOL .
+		'STATUS:NEEDS-ACTION' . PHP_EOL .
+		'END:VTODO' . PHP_EOL .
 		'END:VCALENDAR';
 
 	// DUE DATETIME
-	private $vTodo4 = 'BEGIN:VCALENDAR'.PHP_EOL.
-		'PRODID:TEST'.PHP_EOL.
-		'VERSION:2.0'.PHP_EOL.
-		'BEGIN:VTODO'.PHP_EOL.
-		'UID:20070313T123432Z-456553@example.com'.PHP_EOL.
-		'DTSTAMP:20070313T123432Z'.PHP_EOL.
-		'DUE:20070709T130000Z'.PHP_EOL.
-		'SUMMARY:Task title'.PHP_EOL.
-		'STATUS:NEEDS-ACTION'.PHP_EOL.
-		'END:VTODO'.PHP_EOL.
+	private $vTodo4 = 'BEGIN:VCALENDAR' . PHP_EOL .
+		'PRODID:TEST' . PHP_EOL .
+		'VERSION:2.0' . PHP_EOL .
+		'BEGIN:VTODO' . PHP_EOL .
+		'UID:20070313T123432Z-456553@example.com' . PHP_EOL .
+		'DTSTAMP:20070313T123432Z' . PHP_EOL .
+		'DUE:20070709T130000Z' . PHP_EOL .
+		'SUMMARY:Task title' . PHP_EOL .
+		'STATUS:NEEDS-ACTION' . PHP_EOL .
+		'END:VTODO' . PHP_EOL .
 		'END:VCALENDAR';
 
 	protected function setUp(): void {
@@ -292,11 +292,11 @@ class TasksSearchProviderTest extends TestCase {
 			->willReturn('link-to-route-tasks.index');
 		$this->urlGenerator->expects($this->once())
 			->method('getAbsoluteURL')
-			->with('link-to-route-tasks.index#/calendars/uri-john.doe/tasks/task-uri.ics')
-			->willReturn('absolute-url-link-to-route-tasks.index#/calendars/uri-john.doe/tasks/task-uri.ics');
+			->with('link-to-route-tasks.indexcalendars/uri-john.doe/tasks/task-uri.ics')
+			->willReturn('absolute-url-link-to-route-tasks.indexcalendars/uri-john.doe/tasks/task-uri.ics');
 
 		$actual = self::invokePrivate($this->provider, 'getDeepLinkToTasksApp', ['uri-john.doe', 'task-uri.ics']);
-		$this->assertEquals('absolute-url-link-to-route-tasks.index#/calendars/uri-john.doe/tasks/task-uri.ics', $actual);
+		$this->assertEquals('absolute-url-link-to-route-tasks.indexcalendars/uri-john.doe/tasks/task-uri.ics', $actual);
 	}
 
 	/**

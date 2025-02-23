@@ -12,6 +12,8 @@ use OCA\User_LDAP\Helper;
 use OCA\User_LDAP\LDAP;
 use OCA\User_LDAP\User_Proxy;
 use OCP\IConfig;
+use OCP\IDBConnection;
+use OCP\Server;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -81,7 +83,7 @@ class Search extends Command {
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$helper = new Helper($this->ocConfig, \OC::$server->getDatabaseConnection());
+		$helper = new Helper($this->ocConfig, Server::get(IDBConnection::class));
 		$configPrefixes = $helper->getServerConfigurationPrefixes(true);
 		$ldapWrapper = new LDAP();
 
@@ -106,7 +108,7 @@ class Search extends Command {
 
 		$result = $proxy->$getMethod($input->getArgument('search'), $limit, $offset);
 		foreach ($result as $id => $name) {
-			$line = $name . ($printID ? ' ('.$id.')' : '');
+			$line = $name . ($printID ? ' (' . $id . ')' : '');
 			$output->writeln($line);
 		}
 		return self::SUCCESS;

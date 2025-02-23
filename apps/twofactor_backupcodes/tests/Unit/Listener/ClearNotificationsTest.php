@@ -14,6 +14,7 @@ use OCP\EventDispatcher\Event;
 use OCP\IUser;
 use OCP\Notification\IManager;
 use OCP\Notification\INotification;
+use OCP\Server;
 use Test\TestCase;
 
 class ClearNotificationsTest extends TestCase {
@@ -29,12 +30,12 @@ class ClearNotificationsTest extends TestCase {
 
 		$this->notificationManager = $this->createMock(IManager::class);
 		$this->notificationManager->method('createNotification')
-			->willReturn(\OC::$server->query(IManager::class)->createNotification());
+			->willReturn(Server::get(IManager::class)->createNotification());
 
 		$this->listener = new ClearNotifications($this->notificationManager);
 	}
 
-	public function testHandleGenericEvent() {
+	public function testHandleGenericEvent(): void {
 		$event = $this->createMock(Event::class);
 		$this->notificationManager->expects($this->never())
 			->method($this->anything());
@@ -42,7 +43,7 @@ class ClearNotificationsTest extends TestCase {
 		$this->listener->handle($event);
 	}
 
-	public function testHandleCodesGeneratedEvent() {
+	public function testHandleCodesGeneratedEvent(): void {
 		$user = $this->createMock(IUser::class);
 		$user->method('getUID')->willReturn('fritz');
 		$event = new CodesGenerated($user);

@@ -229,6 +229,12 @@
 			</template>
 		</td>
 
+		<td v-if="showConfig.showFirstLogin"
+			class="row__cell"
+			data-cy-user-list-cell-first-login>
+			<span v-if="!isObfuscated">{{ userFirstLogin }}</span>
+		</td>
+
 		<td v-if="showConfig.showLastLogin"
 			:title="userLastLoginTooltip"
 			class="row__cell"
@@ -280,11 +286,11 @@ import { getCurrentUser } from '@nextcloud/auth'
 import { showSuccess, showError } from '@nextcloud/dialogs'
 import { confirmPassword } from '@nextcloud/password-confirmation'
 
-import NcAvatar from '@nextcloud/vue/dist/Components/NcAvatar.js'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
-import NcProgressBar from '@nextcloud/vue/dist/Components/NcProgressBar.js'
-import NcSelect from '@nextcloud/vue/dist/Components/NcSelect.js'
-import NcTextField from '@nextcloud/vue/dist/Components/NcTextField.js'
+import NcAvatar from '@nextcloud/vue/components/NcAvatar'
+import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
+import NcProgressBar from '@nextcloud/vue/components/NcProgressBar'
+import NcSelect from '@nextcloud/vue/components/NcSelect'
+import NcTextField from '@nextcloud/vue/components/NcTextField'
 
 import UserRowActions from './UserRowActions.vue'
 
@@ -621,8 +627,6 @@ export default {
 
 		/**
 		 * Set user displayName
-		 *
-		 * @param {string} displayName The display name
 		 */
 		async updateDisplayName() {
 			this.loading.displayName = true
@@ -643,8 +647,6 @@ export default {
 
 		/**
 		 * Set user password
-		 *
-		 * @param {string} password The email address
 		 */
 		async updatePassword() {
 			this.loading.password = true
@@ -668,8 +670,6 @@ export default {
 
 		/**
 		 * Set user mailAddress
-		 *
-		 * @param {string} mailAddress The email address
 		 */
 		async updateEmail() {
 			this.loading.mailAddress = true
@@ -913,10 +913,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import './shared/styles.scss';
+@use './shared/styles';
 
 .user-list__row {
-	@include row;
+	@include styles.row;
 
 	&:hover {
 		background-color: var(--color-background-hover);
@@ -933,7 +933,7 @@ export default {
 }
 
 .row {
-	@include cell;
+	@include styles.cell;
 
 	&__cell {
 		border-bottom: 1px solid var(--color-border);

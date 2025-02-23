@@ -8,26 +8,27 @@ namespace OCA\User_LDAP\Settings;
 use OCA\User_LDAP\Configuration;
 use OCA\User_LDAP\Helper;
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\IConfig;
+use OCP\IDBConnection;
 use OCP\IL10N;
+use OCP\Server;
 use OCP\Settings\IDelegatedSettings;
 use OCP\Template;
 
 class Admin implements IDelegatedSettings {
-	/** @var IL10N */
-	private $l;
-
 	/**
 	 * @param IL10N $l
 	 */
-	public function __construct(IL10N $l) {
-		$this->l = $l;
+	public function __construct(
+		private IL10N $l,
+	) {
 	}
 
 	/**
 	 * @return TemplateResponse
 	 */
 	public function getForm() {
-		$helper = new Helper(\OC::$server->getConfig(), \OC::$server->getDatabaseConnection());
+		$helper = new Helper(Server::get(IConfig::class), Server::get(IDBConnection::class));
 		$prefixes = $helper->getServerConfigurationPrefixes();
 		if (count($prefixes) === 0) {
 			$newPrefix = $helper->getNextServerConfigurationPrefix();
@@ -55,7 +56,7 @@ class Admin implements IDelegatedSettings {
 		}
 		$defaults = $config->getDefaults();
 		foreach ($defaults as $key => $default) {
-			$parameters[$key.'_default'] = $default;
+			$parameters[$key . '_default'] = $default;
 		}
 
 		return new TemplateResponse('user_ldap', 'settings', $parameters);

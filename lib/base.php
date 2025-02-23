@@ -18,6 +18,7 @@ use OCP\Security\Bruteforce\IThrottler;
 use OCP\Server;
 use OCP\Share;
 use OCP\User\Events\UserChangedEvent;
+use OCP\Util;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use function OCP\Log\logger;
@@ -141,7 +142,7 @@ class OC {
 			// slash which is required by URL generation.
 			if (isset($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI'] === \OC::$WEBROOT &&
 					substr($_SERVER['REQUEST_URI'], -1) !== '/') {
-				header('Location: '.\OC::$WEBROOT.'/');
+				header('Location: ' . \OC::$WEBROOT . '/');
 				exit();
 			}
 		}
@@ -183,7 +184,7 @@ class OC {
 		$l = Server::get(\OCP\L10N\IFactory::class)->get('lib');
 
 		// Create config if it does not already exist
-		$configFilePath = self::$configDir .'/config.php';
+		$configFilePath = self::$configDir . '/config.php';
 		if (!file_exists($configFilePath)) {
 			@touch($configFilePath);
 		}
@@ -195,11 +196,11 @@ class OC {
 			$urlGenerator = Server::get(IURLGenerator::class);
 
 			if (self::$CLI) {
-				echo $l->t('Cannot write into "config" directory!')."\n";
-				echo $l->t('This can usually be fixed by giving the web server write access to the config directory.')."\n";
+				echo $l->t('Cannot write into "config" directory!') . "\n";
+				echo $l->t('This can usually be fixed by giving the web server write access to the config directory.') . "\n";
 				echo "\n";
-				echo $l->t('But, if you prefer to keep config.php file read only, set the option "config_is_read_only" to true in it.')."\n";
-				echo $l->t('See %s', [ $urlGenerator->linkToDocs('admin-config') ])."\n";
+				echo $l->t('But, if you prefer to keep config.php file read only, set the option "config_is_read_only" to true in it.') . "\n";
+				echo $l->t('See %s', [ $urlGenerator->linkToDocs('admin-config') ]) . "\n";
 				exit;
 			} else {
 				OC_Template::printErrorPage(
@@ -255,7 +256,7 @@ class OC {
 		$tooBig = false;
 		if (!$disableWebUpdater) {
 			$apps = Server::get(\OCP\App\IAppManager::class);
-			if ($apps->isInstalled('user_ldap')) {
+			if ($apps->isEnabledForAnyone('user_ldap')) {
 				$qb = Server::get(\OCP\IDBConnection::class)->getQueryBuilder();
 
 				$result = $qb->select($qb->func()->count('*', 'user_count'))
@@ -266,7 +267,7 @@ class OC {
 
 				$tooBig = ($row['user_count'] > 50);
 			}
-			if (!$tooBig && $apps->isInstalled('user_saml')) {
+			if (!$tooBig && $apps->isEnabledForAnyone('user_saml')) {
 				$qb = Server::get(\OCP\IDBConnection::class)->getQueryBuilder();
 
 				$result = $qb->select($qb->func()->count('*', 'user_count'))
@@ -279,8 +280,7 @@ class OC {
 			}
 			if (!$tooBig) {
 				// count users
-				$stats = Server::get(\OCP\IUserManager::class)->countUsers();
-				$totalUsers = array_sum($stats);
+				$totalUsers = Server::get(\OCP\IUserManager::class)->countUsersTotal(51);
 				$tooBig = ($totalUsers > 50);
 			}
 		}
@@ -292,10 +292,12 @@ class OC {
 			http_response_code(503);
 			header('Retry-After: 120');
 
+			$serverVersion = \OCP\Server::get(\OCP\ServerVersion::class);
+
 			// render error page
 			$template = new OC_Template('', 'update.use-cli', 'guest');
 			$template->assign('productName', 'nextcloud'); // for now
-			$template->assign('version', OC_Util::getVersionString());
+			$template->assign('version', $serverVersion->getVersionString());
 			$template->assign('tooBig', $tooBig);
 			$template->assign('cliUpgradeLink', $cliUpgradeLink);
 
@@ -321,7 +323,7 @@ class OC {
 		$appManager = Server::get(\OCP\App\IAppManager::class);
 
 		$tmpl = new OC_Template('', 'update.admin', 'guest');
-		$tmpl->assign('version', OC_Util::getVersionString());
+		$tmpl->assign('version', \OCP\Server::get(\OCP\ServerVersion::class)->getVersionString());
 		$tmpl->assign('isAppsOnlyUpgrade', $isAppsOnlyUpgrade);
 
 		// get third party apps
@@ -360,6 +362,13 @@ class OC {
 
 	public static function initSession(): void {
 		$request = Server::get(IRequest::class);
+
+		// Do not initialize sessions for 'status.php' requests
+		// Monitoring endpoints can quickly flood session handlers
+		// and 'status.php' doesn't require sessions anyway
+		if (str_ends_with($request->getScriptName(), '/status.php')) {
+			return;
+		}
 
 		// TODO: Temporary disabled again to solve issues with CalDAV/CardDAV clients like DAVx5 that use cookies
 		// TODO: See https://github.com/nextcloud/server/issues/37277#issuecomment-1476366147 and the other comments
@@ -515,7 +524,9 @@ class OC {
 			$processingScript = $processingScript[count($processingScript) - 1];
 
 			// index.php routes are handled in the middleware
-			if ($processingScript === 'index.php') {
+			// and cron.php does not need any authentication at all
+			if ($processingScript === 'index.php'
+				|| $processingScript === 'cron.php') {
 				return;
 			}
 
@@ -568,7 +579,7 @@ class OC {
 		try {
 			self::initPaths();
 			// setup 3rdparty autoloader
-			$vendorAutoLoad = OC::$SERVERROOT. '/3rdparty/autoload.php';
+			$vendorAutoLoad = OC::$SERVERROOT . '/3rdparty/autoload.php';
 			if (!file_exists($vendorAutoLoad)) {
 				throw new \RuntimeException('Composer autoloader not found, unable to continue. Check the folder "3rdparty". Running "git submodule update --init" will initialize the git submodule that handles the subfolder "3rdparty".');
 			}
@@ -587,7 +598,7 @@ class OC {
 		self::$server = new \OC\Server(\OC::$WEBROOT, self::$config);
 		self::$server->boot();
 
-		if (self::$CLI && in_array('--'.\OCP\Console\ReservedOptions::DEBUG_LOG, $_SERVER['argv'])) {
+		if (self::$CLI && in_array('--' . \OCP\Console\ReservedOptions::DEBUG_LOG, $_SERVER['argv'])) {
 			\OC\Core\Listener\BeforeMessageLoggedEventListener::setup();
 		}
 
@@ -663,7 +674,7 @@ class OC {
 		if (!function_exists('simplexml_load_file')) {
 			throw new \OCP\HintException('The PHP SimpleXML/PHP-XML extension is not installed.', 'Install the extension or make sure it is enabled.');
 		}
-		
+
 		OC_App::loadApps(['session']);
 		if (!self::$CLI) {
 			self::initSession();
@@ -817,6 +828,21 @@ class OC {
 		$eventLogger->start('request', 'Full request after boot');
 		register_shutdown_function(function () use ($eventLogger) {
 			$eventLogger->end('request');
+		});
+
+		register_shutdown_function(function () {
+			$memoryPeak = memory_get_peak_usage();
+			$logLevel = match (true) {
+				$memoryPeak > 500_000_000 => ILogger::FATAL,
+				$memoryPeak > 400_000_000 => ILogger::ERROR,
+				$memoryPeak > 300_000_000 => ILogger::WARN,
+				default => null,
+			};
+			if ($logLevel !== null) {
+				$message = 'Request used more than 300 MB of RAM: ' . Util::humanFileSize($memoryPeak);
+				$logger = Server::get(LoggerInterface::class);
+				$logger->log($logLevel, $message, ['app' => 'core']);
+			}
 		});
 	}
 
@@ -1120,11 +1146,11 @@ class OC {
 	}
 
 	protected static function tryAppAPILogin(OCP\IRequest $request): bool {
-		$appManager = Server::get(OCP\App\IAppManager::class);
 		if (!$request->getHeader('AUTHORIZATION-APP-API')) {
 			return false;
 		}
-		if (!$appManager->isInstalled('app_api')) {
+		$appManager = Server::get(OCP\App\IAppManager::class);
+		if (!$appManager->isEnabledForAnyone('app_api')) {
 			return false;
 		}
 		try {

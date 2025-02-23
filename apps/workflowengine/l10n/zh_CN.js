@@ -85,6 +85,7 @@ OC.L10N.register(
     "Show more" : "显示更多",
     "Configured flows" : "已配置的流程",
     "Your flows" : "你的流程",
+    "No flows configured" : "未配置任何流程",
     "matches" : "匹配",
     "does not match" : "不匹配",
     "is" : "是",
@@ -110,7 +111,6 @@ OC.L10N.register(
     "not between" : "不在之间",
     "Request user agent" : "请求用户代理",
     "is member of" : "是成员",
-    "is not member of" : "不是成员",
-    "User group membership" : "用户组成员资格"
+    "is not member of" : "不是成员"
 },
 "nplurals=1; plural=0;");

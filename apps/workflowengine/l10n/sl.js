@@ -48,6 +48,7 @@ OC.L10N.register(
     "Nextcloud workflow engine" : "Program za koračno avtomatizacijo delovnih nalog",
     "Select a filter" : "Izbor filtra",
     "Select a comparator" : "Izbor primerjalnika",
+    "Remove filter" : "Odstrani filter",
     "Select a file type" : "Izbor vrste datoteke",
     "e.g. httpd/unix-directory" : "npr. httpd/unix-directory",
     "Folder" : "Mapa",
@@ -113,7 +114,6 @@ OC.L10N.register(
     "not between" : "ni dovoljen med",
     "Request user agent" : "Uporabniški odjemalec",
     "is member of" : "je v skupini",
-    "is not member of" : "ni v skupini",
-    "User group membership" : "Članstvo v uporabniških skupinah"
+    "is not member of" : "ni v skupini"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);");

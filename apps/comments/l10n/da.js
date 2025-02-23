@@ -19,7 +19,7 @@ OC.L10N.register(
     "New comment" : "Ny kommentar",
     "Write a comment …" : "Skriv kommentar…",
     "Post comment" : "Skriv kommentar",
-    "@ for mentions, : for emoji, / for smart picker" : "\"@\" for at nævne, \":\" for emojis, \"/\" for Smart Vælger",
+    "@ for mentions, : for emoji, / for smart picker" : "\"@\" for at omtale, \":\" for emojis, \"/\" for Smart Vælger",
     "Could not reload comments" : "Kunne ikke indlæse kommentarer",
     "No comments yet, start the conversation!" : "Ingen kommentarer endnu, start samtalen!",
     "No more messages" : "Ikke flere beskeder",
@@ -31,7 +31,6 @@ OC.L10N.register(
     "An error occurred while trying to edit the comment" : "Der opstod en fejl under forsøget på at redigere kommentaren",
     "Comment deleted" : "Kommentar slettet",
     "An error occurred while trying to delete the comment" : "Der opstod en fejl under forsøget på at slette kommentaren",
-    "An error occurred while trying to create the comment" : "Der opstod en fejl under forsøget på at oprette kommentaren",
-    "You were mentioned on \"{file}\", in a comment by a user that has since been deleted" : "Du blev nævnt på \"{file}\", i en kommentar af en bruger, som siden er blevet slettet"
+    "An error occurred while trying to create the comment" : "Der opstod en fejl under forsøget på at oprette kommentaren"
 },
 "nplurals=2; plural=(n != 1);");

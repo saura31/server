@@ -11,6 +11,7 @@ use OC\Core\Command\Base;
 use OC\Core\Command\InterruptedException;
 use OC\DB\Connection;
 use OC\DB\ConnectionAdapter;
+use OC\Files\Utils\Scanner;
 use OC\FilesMetadata\FilesMetadataManager;
 use OC\ForbiddenException;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -23,6 +24,7 @@ use OCP\Files\NotFoundException;
 use OCP\Files\StorageNotAvailableException;
 use OCP\FilesMetadata\IFilesMetadataManager;
 use OCP\IUserManager;
+use OCP\Server;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
@@ -98,15 +100,15 @@ class Scan extends Base {
 
 	protected function scanFiles(string $user, string $path, ?string $scanMetadata, OutputInterface $output, bool $backgroundScan = false, bool $recursive = true, bool $homeOnly = false): void {
 		$connection = $this->reconnectToDatabase($output);
-		$scanner = new \OC\Files\Utils\Scanner(
+		$scanner = new Scanner(
 			$user,
 			new ConnectionAdapter($connection),
-			\OC::$server->get(IEventDispatcher::class),
-			\OC::$server->get(LoggerInterface::class)
+			Server::get(IEventDispatcher::class),
+			Server::get(LoggerInterface::class)
 		);
 
 		# check on each file/folder if there was a user interrupt (ctrl-c) and throw an exception
-		$scanner->listen('\OC\Files\Utils\Scanner', 'scanFile', function (string $path) use ($output, $scanMetadata) {
+		$scanner->listen('\OC\Files\Utils\Scanner', 'scanFile', function (string $path) use ($output, $scanMetadata): void {
 			$output->writeln("\tFile\t<info>$path</info>", OutputInterface::VERBOSITY_VERBOSE);
 			++$this->filesCounter;
 			$this->abortIfInterrupted();
@@ -120,29 +122,29 @@ class Scan extends Base {
 			}
 		});
 
-		$scanner->listen('\OC\Files\Utils\Scanner', 'scanFolder', function ($path) use ($output) {
+		$scanner->listen('\OC\Files\Utils\Scanner', 'scanFolder', function ($path) use ($output): void {
 			$output->writeln("\tFolder\t<info>$path</info>", OutputInterface::VERBOSITY_VERBOSE);
 			++$this->foldersCounter;
 			$this->abortIfInterrupted();
 		});
 
-		$scanner->listen('\OC\Files\Utils\Scanner', 'StorageNotAvailable', function (StorageNotAvailableException $e) use ($output) {
+		$scanner->listen('\OC\Files\Utils\Scanner', 'StorageNotAvailable', function (StorageNotAvailableException $e) use ($output): void {
 			$output->writeln('Error while scanning, storage not available (' . $e->getMessage() . ')', OutputInterface::VERBOSITY_VERBOSE);
 			++$this->errorsCounter;
 		});
 
-		$scanner->listen('\OC\Files\Utils\Scanner', 'normalizedNameMismatch', function ($fullPath) use ($output) {
+		$scanner->listen('\OC\Files\Utils\Scanner', 'normalizedNameMismatch', function ($fullPath) use ($output): void {
 			$output->writeln("\t<error>Entry \"" . $fullPath . '" will not be accessible due to incompatible encoding</error>');
 			++$this->errorsCounter;
 		});
 
-		$this->eventDispatcher->addListener(NodeAddedToCache::class, function () {
+		$this->eventDispatcher->addListener(NodeAddedToCache::class, function (): void {
 			++$this->newCounter;
 		});
-		$this->eventDispatcher->addListener(FileCacheUpdated::class, function () {
+		$this->eventDispatcher->addListener(FileCacheUpdated::class, function (): void {
 			++$this->updatedCounter;
 		});
-		$this->eventDispatcher->addListener(NodeRemovedFromCache::class, function () {
+		$this->eventDispatcher->addListener(NodeRemovedFromCache::class, function (): void {
 			++$this->removedCounter;
 		});
 
@@ -309,7 +311,7 @@ class Scan extends Base {
 
 	protected function reconnectToDatabase(OutputInterface $output): Connection {
 		/** @var Connection $connection */
-		$connection = \OC::$server->get(Connection::class);
+		$connection = Server::get(Connection::class);
 		try {
 			$connection->close();
 		} catch (\Exception $ex) {

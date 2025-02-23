@@ -16,7 +16,9 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\BruteForceProtection;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\Attribute\OpenAPI;
 use OCP\AppFramework\Http\Attribute\PublicPage;
+use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Http\FileDisplayResponse;
@@ -192,11 +194,13 @@ class ThemingController extends Controller {
 	}
 
 	/**
-	 * Check that a string is a valid http/https url
+	 * Check that a string is a valid http/https url.
+	 * Also validates that there is no way for XSS through HTML
 	 */
 	private function isValidUrl(string $url): bool {
-		return ((str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) &&
-			filter_var($url, FILTER_VALIDATE_URL) !== false);
+		return ((str_starts_with($url, 'http://') || str_starts_with($url, 'https://'))
+			&& filter_var($url, FILTER_VALIDATE_URL) !== false)
+			&& !str_contains($url, '"');
 	}
 
 	/**
@@ -338,6 +342,7 @@ class ThemingController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	#[OpenAPI(scope: OpenAPI::SCOPE_DEFAULT)]
 	public function getImage(string $key, bool $useSvg = true) {
 		try {
 			$file = $this->imageManager->getImage($key, $useSvg);
@@ -346,7 +351,7 @@ class ThemingController extends Controller {
 		}
 
 		$response = new FileDisplayResponse($file);
-		$csp = new Http\ContentSecurityPolicy();
+		$csp = new ContentSecurityPolicy();
 		$csp->allowInlineStyle();
 		$response->setContentSecurityPolicy($csp);
 		$response->cacheFor(3600);
@@ -376,6 +381,7 @@ class ThemingController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	#[OpenAPI(scope: OpenAPI::SCOPE_DEFAULT)]
 	public function getThemeStylesheet(string $themeId, bool $plain = false, bool $withCustomCss = false) {
 		$themes = $this->themesService->getThemes();
 		if (!in_array($themeId, array_keys($themes))) {
@@ -416,7 +422,7 @@ class ThemingController extends Controller {
 	 *
 	 * @param string $app ID of the app
 	 * @psalm-suppress LessSpecificReturnStatement The content of the Manifest doesn't need to be described in the return type
-	 * @return JSONResponse<Http::STATUS_OK, array{name: string, short_name: string, start_url: string, theme_color: string, background_color: string, description: string, icons: array{src: non-empty-string, type: string, sizes: string}[], display: string}, array{}>|JSONResponse<Http::STATUS_NOT_FOUND, array{}, array{}>
+	 * @return JSONResponse<Http::STATUS_OK, array{name: string, short_name: string, start_url: string, theme_color: string, background_color: string, description: string, icons: list<array{src: non-empty-string, type: string, sizes: string}>, display: string}, array{}>|JSONResponse<Http::STATUS_NOT_FOUND, array{}, array{}>
 	 *
 	 * 200: Manifest returned
 	 * 404: App not found
@@ -424,6 +430,7 @@ class ThemingController extends Controller {
 	#[PublicPage]
 	#[NoCSRFRequired]
 	#[BruteForceProtection(action: 'manifest')]
+	#[OpenAPI(scope: OpenAPI::SCOPE_DEFAULT)]
 	public function getManifest(string $app): JSONResponse {
 		$cacheBusterValue = $this->config->getAppValue('theming', 'cachebuster', '0');
 		if ($app === 'core' || $app === 'settings') {
@@ -474,7 +481,7 @@ class ThemingController extends Controller {
 						'sizes' => '16x16'
 					]
 				],
-			'display' => 'standalone'
+			'display' => $this->config->getSystemValueBool('theming.standalone_window.enabled', true) ? 'standalone' : 'browser'
 		];
 		$response = new JSONResponse($responseJS);
 		$response->cacheFor(3600);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SPDX-FileCopyrightText: 2016 Nextcloud GmbH and Nextcloud contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -352,7 +353,7 @@ class PluginTest extends TestCase {
 						'{DAV:}displayname' => $displayName,
 					]);
 
-				$calendarHomeObject->expects($this->once())
+				$calendarHomeObject->expects($this->exactly($deleted ? 2 : 1))
 					->method('getCalDAVBackend')
 					->with()
 					->willReturn($calendarBackend);
@@ -380,7 +381,7 @@ class PluginTest extends TestCase {
 
 		$this->server->expects($this->once())
 			->method('getPropertiesForPath')
-			->with($calendarHome .'/' . $calendarUri, [], 1)
+			->with($calendarHome . '/' . $calendarUri, [], 1)
 			->willReturn($properties);
 
 		$this->plugin->propFindDefaultCalendarUrl($propFind, $node);
@@ -392,7 +393,7 @@ class PluginTest extends TestCase {
 
 		/** @var LocalHref $result */
 		$result = $propFind->get(Plugin::SCHEDULE_DEFAULT_CALENDAR_URL);
-		$this->assertEquals('/remote.php/dav/'. $calendarHome . '/' . $calendarUri, $result->getHref());
+		$this->assertEquals('/remote.php/dav/' . $calendarHome . '/' . $calendarUri, $result->getHref());
 	}
 
 	/**
@@ -400,7 +401,7 @@ class PluginTest extends TestCase {
 	 *
 	 * Should generate 2 messages for attendees User 2 and User External
 	 */
-	public function testCalendarObjectChangePersonalCalendarCreate() {
+	public function testCalendarObjectChangePersonalCalendarCreate(): void {
 
 		// define place holders
 		/** @var Message[] $iTipMessages */
@@ -504,7 +505,7 @@ class PluginTest extends TestCase {
 	 *
 	 * Should generate 3 messages for attendees User 2 (Sharee), User 3 (Non-Sharee) and User External
 	 */
-	public function testCalendarObjectChangeSharedCalendarSharerCreate() {
+	public function testCalendarObjectChangeSharedCalendarSharerCreate(): void {
 
 		// define place holders
 		/** @var Message[] $iTipMessages */
@@ -620,7 +621,7 @@ class PluginTest extends TestCase {
 	 *
 	 * Should generate 3 messages for attendees User 1 (Sharer/Owner), User 3 (Non-Sharee) and User External
 	 */
-	public function testCalendarObjectChangeSharedCalendarShreeCreate() {
+	public function testCalendarObjectChangeSharedCalendarShreeCreate(): void {
 
 		// define place holders
 		/** @var Message[] $iTipMessages */
@@ -738,4 +739,42 @@ class PluginTest extends TestCase {
 
 	}
 
+	/**
+	 * Test Calendar Event Creation with iTip and iMip disabled
+	 *
+	 * Should generate 2 messages for attendees User 2 and User External
+	 */
+	public function testCalendarObjectChangeWithSchedulingDisabled(): void {
+		// construct server request
+		$request = new Request(
+			'PUT',
+			'/remote.php/dav/calendars/user1/personal/B0DC78AE-6DD7-47E3-80BE-89F23E6D5383.ics',
+			['x-nc-scheduling' => 'false']
+		);
+		$request->setBaseUrl('/remote.php/dav/');
+		// construct server response
+		$response = new Response();
+		// construct server tree
+		$tree = $this->createMock(Tree::class);
+		$tree->expects($this->never())
+			->method('getNodeForPath');
+		// construct server properties and returns
+		$this->server->httpRequest = $request;
+		$this->server->tree = $tree;
+		// construct empty calendar event
+		$vCalendar = new VCalendar();
+		$vEvent = $vCalendar->add('VEVENT', []);
+		// define flags
+		$newFlag = true;
+		$modifiedFlag = false;
+		// execute method
+		$this->plugin->calendarObjectChange(
+			$request,
+			$response,
+			$vCalendar,
+			'calendars/user1/personal',
+			$modifiedFlag,
+			$newFlag
+		);
+	}
 }

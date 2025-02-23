@@ -11,17 +11,16 @@ use OCP\Cache\CappedMemoryCache;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IConfig;
 use OCP\IDBConnection;
+use OCP\Server;
 
 class Helper {
-	private IConfig $config;
-	private IDBConnection $connection;
 	/** @var CappedMemoryCache<string> */
 	protected CappedMemoryCache $sanitizeDnCache;
 
-	public function __construct(IConfig $config,
-		IDBConnection $connection) {
-		$this->config = $config;
-		$this->connection = $connection;
+	public function __construct(
+		private IConfig $config,
+		private IDBConnection $connection,
+	) {
 		$this->sanitizeDnCache = new CappedMemoryCache(10000);
 	}
 
@@ -271,7 +270,7 @@ class Helper {
 			throw new \Exception('key uid is expected to be set in $param');
 		}
 
-		$userBackend = \OC::$server->get(User_Proxy::class);
+		$userBackend = Server::get(User_Proxy::class);
 		$uid = $userBackend->loginName2UserName($param['uid']);
 		if ($uid !== false) {
 			$param['uid'] = $uid;

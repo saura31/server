@@ -8,6 +8,7 @@ namespace OCA\Files\Tests\Activity\Setting;
 use OCA\Files\Activity\Settings\FavoriteAction;
 use OCA\Files\Activity\Settings\FileChanged;
 use OCP\Activity\ISetting;
+use OCP\Server;
 use Test\TestCase;
 
 class GenericTest extends TestCase {
@@ -23,8 +24,8 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataSettings
 	 * @param string $settingClass
 	 */
-	public function testImplementsInterface($settingClass) {
-		$setting = \OC::$server->query($settingClass);
+	public function testImplementsInterface($settingClass): void {
+		$setting = Server::get($settingClass);
 		$this->assertInstanceOf(ISetting::class, $setting);
 	}
 
@@ -32,9 +33,9 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataSettings
 	 * @param string $settingClass
 	 */
-	public function testGetIdentifier($settingClass) {
+	public function testGetIdentifier($settingClass): void {
 		/** @var ISetting $setting */
-		$setting = \OC::$server->query($settingClass);
+		$setting = Server::get($settingClass);
 		$this->assertIsString($setting->getIdentifier());
 	}
 
@@ -42,9 +43,9 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataSettings
 	 * @param string $settingClass
 	 */
-	public function testGetName($settingClass) {
+	public function testGetName($settingClass): void {
 		/** @var ISetting $setting */
-		$setting = \OC::$server->query($settingClass);
+		$setting = Server::get($settingClass);
 		$this->assertIsString($setting->getName());
 	}
 
@@ -52,9 +53,9 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataSettings
 	 * @param string $settingClass
 	 */
-	public function testGetPriority($settingClass) {
+	public function testGetPriority($settingClass): void {
 		/** @var ISetting $setting */
-		$setting = \OC::$server->query($settingClass);
+		$setting = Server::get($settingClass);
 		$priority = $setting->getPriority();
 		$this->assertIsInt($setting->getPriority());
 		$this->assertGreaterThanOrEqual(0, $priority);
@@ -65,9 +66,9 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataSettings
 	 * @param string $settingClass
 	 */
-	public function testCanChangeStream($settingClass) {
+	public function testCanChangeStream($settingClass): void {
 		/** @var ISetting $setting */
-		$setting = \OC::$server->query($settingClass);
+		$setting = Server::get($settingClass);
 		$this->assertIsBool($setting->canChangeStream());
 	}
 
@@ -75,9 +76,9 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataSettings
 	 * @param string $settingClass
 	 */
-	public function testIsDefaultEnabledStream($settingClass) {
+	public function testIsDefaultEnabledStream($settingClass): void {
 		/** @var ISetting $setting */
-		$setting = \OC::$server->query($settingClass);
+		$setting = Server::get($settingClass);
 		$this->assertIsBool($setting->isDefaultEnabledStream());
 	}
 
@@ -85,9 +86,9 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataSettings
 	 * @param string $settingClass
 	 */
-	public function testCanChangeMail($settingClass) {
+	public function testCanChangeMail($settingClass): void {
 		/** @var ISetting $setting */
-		$setting = \OC::$server->query($settingClass);
+		$setting = Server::get($settingClass);
 		$this->assertIsBool($setting->canChangeMail());
 	}
 
@@ -95,9 +96,9 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataSettings
 	 * @param string $settingClass
 	 */
-	public function testIsDefaultEnabledMail($settingClass) {
+	public function testIsDefaultEnabledMail($settingClass): void {
 		/** @var ISetting $setting */
-		$setting = \OC::$server->query($settingClass);
+		$setting = Server::get($settingClass);
 		$this->assertIsBool($setting->isDefaultEnabledMail());
 	}
 }

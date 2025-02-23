@@ -73,7 +73,7 @@
 					:required="!settings.isAdmin && !settings.isDelegatedAdmin"
 					@input="handleGroupInput"
 					@option:created="createGroup" />
-					<!-- If user is not admin, he is a subadmin.
+					<!-- If user is not admin, they are a subadmin.
 						Subadmins can't create users outside their groups
 						Therefore, empty select is forbidden -->
 			</div>
@@ -135,11 +135,12 @@
 </template>
 
 <script>
-import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
-import NcDialog from '@nextcloud/vue/dist/Components/NcDialog.js'
-import NcPasswordField from '@nextcloud/vue/dist/Components/NcPasswordField.js'
-import NcSelect from '@nextcloud/vue/dist/Components/NcSelect.js'
-import NcTextField from '@nextcloud/vue/dist/Components/NcTextField.js'
+import { formatFileSize, parseFileSize } from '@nextcloud/files'
+import NcButton from '@nextcloud/vue/components/NcButton'
+import NcDialog from '@nextcloud/vue/components/NcDialog'
+import NcPasswordField from '@nextcloud/vue/components/NcPasswordField'
+import NcSelect from '@nextcloud/vue/components/NcSelect'
+import NcTextField from '@nextcloud/vue/components/NcTextField'
 
 export default {
 	name: 'NewUserDialog',
@@ -317,7 +318,7 @@ export default {
 			const validQuota = OC.Util.computerFileSize(quota)
 			if (validQuota !== null && validQuota >= 0) {
 				// unify format output
-				quota = OC.Util.humanFileSize(OC.Util.computerFileSize(quota))
+				quota = formatFileSize(parseFileSize(quota))
 				this.newUser.quota = { id: quota, label: quota }
 				return this.newUser.quota
 			}

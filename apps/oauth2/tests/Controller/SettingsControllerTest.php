@@ -18,6 +18,7 @@ use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Security\ICrypto;
 use OCP\Security\ISecureRandom;
+use OCP\Server;
 use Test\TestCase;
 
 /**
@@ -70,7 +71,7 @@ class SettingsControllerTest extends TestCase {
 
 	}
 
-	public function testAddClient() {
+	public function testAddClient(): void {
 		$this->secureRandom
 			->expects($this->exactly(2))
 			->method('generate')
@@ -117,12 +118,12 @@ class SettingsControllerTest extends TestCase {
 		], $data);
 	}
 
-	public function testDeleteClient() {
+	public function testDeleteClient(): void {
 
-		$userManager = \OC::$server->getUserManager();
+		$userManager = Server::get(IUserManager::class);
 		// count other users in the db before adding our own
 		$count = 0;
-		$function = function (IUser $user) use (&$count) {
+		$function = function (IUser $user) use (&$count): void {
 			if ($user->getLastLogin() > 0) {
 				$count++;
 			}
@@ -177,7 +178,7 @@ class SettingsControllerTest extends TestCase {
 		$user1->delete();
 	}
 
-	public function testInvalidRedirectUri() {
+	public function testInvalidRedirectUri(): void {
 		$result = $this->settingsController->addClient('test', 'invalidurl');
 
 		$this->assertEquals(Http::STATUS_BAD_REQUEST, $result->getStatus());

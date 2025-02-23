@@ -6,6 +6,11 @@
  */
 namespace OCA\Files_Sharing\Tests;
 
+use OC\Files\Filesystem;
+use OCA\Files_Sharing\Helper;
+use OCP\IConfig;
+use OCP\Server;
+
 /**
  * Class HelperTest
  *
@@ -16,16 +21,16 @@ class HelperTest extends TestCase {
 	/**
 	 * test set and get share folder
 	 */
-	public function testSetGetShareFolder() {
-		$this->assertSame('/', \OCA\Files_Sharing\Helper::getShareFolder());
+	public function testSetGetShareFolder(): void {
+		$this->assertSame('/', Helper::getShareFolder());
 
-		\OCA\Files_Sharing\Helper::setShareFolder('/Shared/Folder');
+		Helper::setShareFolder('/Shared/Folder');
 
-		$sharedFolder = \OCA\Files_Sharing\Helper::getShareFolder();
-		$this->assertSame('/Shared/Folder', \OCA\Files_Sharing\Helper::getShareFolder());
-		$this->assertTrue(\OC\Files\Filesystem::is_dir($sharedFolder));
+		$sharedFolder = Helper::getShareFolder();
+		$this->assertSame('/Shared/Folder', Helper::getShareFolder());
+		$this->assertTrue(Filesystem::is_dir($sharedFolder));
 
 		// cleanup
-		\OC::$server->getConfig()->deleteSystemValue('share_folder');
+		Server::get(IConfig::class)->deleteSystemValue('share_folder');
 	}
 }

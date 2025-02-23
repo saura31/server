@@ -6,7 +6,6 @@
 <template>
 	<section>
 		<NcSettingsSection :name="t('theming', 'Appearance and accessibility settings')"
-			:limit-width="false"
 			class="theming">
 			<!-- eslint-disable-next-line vue/no-v-html -->
 			<p v-html="description" />
@@ -83,8 +82,8 @@ import { refreshStyles } from './helpers/refreshStyles'
 
 import axios from '@nextcloud/axios'
 
-import NcCheckboxRadioSwitch from '@nextcloud/vue/dist/Components/NcCheckboxRadioSwitch.js'
-import NcSettingsSection from '@nextcloud/vue/dist/Components/NcSettingsSection.js'
+import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
+import NcSettingsSection from '@nextcloud/vue/components/NcSettingsSection'
 
 import BackgroundSettings from './components/BackgroundSettings.vue'
 import ItemPreview from './components/ItemPreview.vue'
@@ -302,7 +301,7 @@ export default {
 	}
 
 	// Proper highlight for links and focus feedback
-	&::v-deep a {
+	:deep(a) {
 		font-weight: bold;
 
 		&:hover,
@@ -313,12 +312,10 @@ export default {
 
 	&__preview-list {
 		--gap: 30px;
-
 		display: grid;
 		margin-top: var(--gap);
 		column-gap: var(--gap);
 		row-gap: var(--gap);
-		grid-template-columns: 1fr 1fr;
 	}
 }
 

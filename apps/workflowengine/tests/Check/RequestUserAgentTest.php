@@ -5,6 +5,7 @@
  */
 namespace OCA\WorkflowEngine\Tests\Check;
 
+use OCA\WorkflowEngine\Check\AbstractStringCheck;
 use OCA\WorkflowEngine\Check\RequestUserAgent;
 use OCP\IL10N;
 use OCP\IRequest;
@@ -41,45 +42,45 @@ class RequestUserAgentTest extends TestCase {
 			['is', 'android', 'Mozilla/5.0 (iOS) Nextcloud-iOS/2.2.0', false],
 			['is', 'android', 'Mozilla/5.0 (Linux) mirall/2.2.0', false],
 			['is', 'android', 'Mozilla/5.0 (Windows) Nextcloud-Outlook v2.2.0', false],
-			['is', 'android', 'Mozilla/5.0 (Linux) Nextcloud-Thunderbird v2.2.0', false],
+			['is', 'android', 'Filelink for *cloud/2.2.0', false],
 			['!is', 'android', 'Mozilla/5.0 (Android) Nextcloud-android/2.2.0', false],
 			['!is', 'android', 'Mozilla/5.0 (iOS) Nextcloud-iOS/2.2.0', true],
 			['!is', 'android', 'Mozilla/5.0 (Linux) mirall/2.2.0', true],
 			['!is', 'android', 'Mozilla/5.0 (Windows) Nextcloud-Outlook v2.2.0', true],
-			['!is', 'android', 'Mozilla/5.0 (Linux) Nextcloud-Thunderbird v2.2.0', true],
+			['!is', 'android', 'Filelink for *cloud/2.2.0', true],
 
 			['is', 'ios', 'Mozilla/5.0 (Android) Nextcloud-android/2.2.0', false],
 			['is', 'ios', 'Mozilla/5.0 (iOS) Nextcloud-iOS/2.2.0', true],
 			['is', 'ios', 'Mozilla/5.0 (Linux) mirall/2.2.0', false],
 			['is', 'ios', 'Mozilla/5.0 (Windows) Nextcloud-Outlook v2.2.0', false],
-			['is', 'ios', 'Mozilla/5.0 (Linux) Nextcloud-Thunderbird v2.2.0', false],
+			['is', 'ios', 'Filelink for *cloud/2.2.0', false],
 			['!is', 'ios', 'Mozilla/5.0 (Android) Nextcloud-android/2.2.0', true],
 			['!is', 'ios', 'Mozilla/5.0 (iOS) Nextcloud-iOS/2.2.0', false],
 			['!is', 'ios', 'Mozilla/5.0 (Linux) mirall/2.2.0', true],
 			['!is', 'ios', 'Mozilla/5.0 (Windows) Nextcloud-Outlook v2.2.0', true],
-			['!is', 'ios', 'Mozilla/5.0 (Linux) Nextcloud-Thunderbird v2.2.0', true],
+			['!is', 'ios', 'Filelink for *cloud/2.2.0', true],
 
 			['is', 'desktop', 'Mozilla/5.0 (Android) Nextcloud-android/2.2.0', false],
 			['is', 'desktop', 'Mozilla/5.0 (iOS) Nextcloud-iOS/2.2.0', false],
 			['is', 'desktop', 'Mozilla/5.0 (Linux) mirall/2.2.0', true],
 			['is', 'desktop', 'Mozilla/5.0 (Windows) Nextcloud-Outlook v2.2.0', false],
-			['is', 'desktop', 'Mozilla/5.0 (Linux) Nextcloud-Thunderbird v2.2.0', false],
+			['is', 'desktop', 'Filelink for *cloud/2.2.0', false],
 			['!is', 'desktop', 'Mozilla/5.0 (Android) Nextcloud-android/2.2.0', true],
 			['!is', 'desktop', 'Mozilla/5.0 (iOS) Nextcloud-iOS/2.2.0', true],
 			['!is', 'desktop', 'Mozilla/5.0 (Linux) mirall/2.2.0', false],
 			['!is', 'desktop', 'Mozilla/5.0 (Windows) Nextcloud-Outlook v2.2.0', true],
-			['!is', 'desktop', 'Mozilla/5.0 (Linux) Nextcloud-Thunderbird v2.2.0', true],
+			['!is', 'desktop', 'Filelink for *cloud/2.2.0', true],
 
 			['is', 'mail', 'Mozilla/5.0 (Android) Nextcloud-android/2.2.0', false],
 			['is', 'mail', 'Mozilla/5.0 (iOS) Nextcloud-iOS/2.2.0', false],
 			['is', 'mail', 'Mozilla/5.0 (Linux) mirall/2.2.0', false],
 			['is', 'mail', 'Mozilla/5.0 (Windows) Nextcloud-Outlook v2.2.0', true],
-			['is', 'mail', 'Mozilla/5.0 (Linux) Nextcloud-Thunderbird v2.2.0', true],
+			['is', 'mail', 'Filelink for *cloud/2.2.0', true],
 			['!is', 'mail', 'Mozilla/5.0 (Android) Nextcloud-android/2.2.0', true],
 			['!is', 'mail', 'Mozilla/5.0 (iOS) Nextcloud-iOS/2.2.0', true],
 			['!is', 'mail', 'Mozilla/5.0 (Linux) mirall/2.2.0', true],
 			['!is', 'mail', 'Mozilla/5.0 (Windows) Nextcloud-Outlook v2.2.0', false],
-			['!is', 'mail', 'Mozilla/5.0 (Linux) Nextcloud-Thunderbird v2.2.0', false],
+			['!is', 'mail', 'Filelink for *cloud/2.2.0', false],
 		];
 	}
 
@@ -90,12 +91,12 @@ class RequestUserAgentTest extends TestCase {
 	 * @param string $actualValue
 	 * @param bool $expected
 	 */
-	public function testExecuteCheck($operation, $checkValue, $actualValue, $expected) {
+	public function testExecuteCheck($operation, $checkValue, $actualValue, $expected): void {
 		$this->request->expects($this->once())
 			->method('getHeader')
 			->willReturn($actualValue);
 
-		/** @var \OCA\WorkflowEngine\Check\AbstractStringCheck $check */
+		/** @var AbstractStringCheck $check */
 		$this->assertEquals($expected, $this->check->executeCheck($operation, $checkValue));
 	}
 }

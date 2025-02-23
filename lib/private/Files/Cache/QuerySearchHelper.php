@@ -54,7 +54,7 @@ class QuerySearchHelper {
 		CacheQueryBuilder $query,
 		ISearchQuery $searchQuery,
 		array $caches,
-		?IMetadataQuery $metadataQuery = null
+		?IMetadataQuery $metadataQuery = null,
 	): void {
 		$storageFilters = array_values(array_map(function (ICache $cache) {
 			return $cache->getQueryFilterForStorage();
@@ -88,7 +88,7 @@ class QuerySearchHelper {
 
 		$this->applySearchConstraints($query, $searchQuery, $caches);
 
-		$result = $query->execute();
+		$result = $query->executeQuery();
 		$tags = $result->fetchAll();
 		$result->closeCursor();
 		return $tags;
@@ -167,7 +167,7 @@ class QuerySearchHelper {
 
 		$this->applySearchConstraints($query, $searchQuery, $caches, $metadataQuery);
 
-		$result = $query->execute();
+		$result = $query->executeQuery();
 		$files = $result->fetchAll();
 
 		$rawEntries = array_map(function (array $data) use ($metadataQuery) {

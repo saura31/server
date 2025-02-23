@@ -288,8 +288,9 @@ $CONFIG = [
 
 /**
  * The directory where the skeleton files are located. These files will be
- * copied to the data directory of new users. Leave empty to not copy any
- * skeleton files.
+ * copied to the data directory of new users. Set empty string to not copy any
+ * skeleton files. If unset and templatedirectory is empty string, shipped
+ * templates will be used to create a template directory for the user.
  * ``{lang}`` can be used as a placeholder for the language of the user.
  * If the directory does not exist, it falls back to non dialect (from ``de_DE``
  * to ``de``). If that does not exist either, it falls back to ``default``
@@ -298,18 +299,16 @@ $CONFIG = [
  */
 'skeletondirectory' => '/path/to/nextcloud/core/skeleton',
 
-
 /**
  * The directory where the template files are located. These files will be
- * copied to the template directory of new users. Leave empty to not copy any
+ * copied to the template directory of new users. Set empty string to not copy any
  * template files.
  * ``{lang}`` can be used as a placeholder for the language of the user.
  * If the directory does not exist, it falls back to non dialect (from ``de_DE``
  * to ``de``). If that does not exist either, it falls back to ``default``
  *
- * If this is not set creating a template directory will only happen if no custom
- * ``skeletondirectory`` is defined, otherwise the shipped templates will be used
- * to create a template directory for the user.
+ * To disable creating a template directory, set both skeletondirectory and
+ * templatedirectory to empty strings.
  */
 'templatedirectory' => '/path/to/nextcloud/templates',
 
@@ -341,6 +340,13 @@ $CONFIG = [
 'davstorage.request_timeout' => 30,
 
 /**
+ * The timeout in seconds for synchronizing address books, e.g. federated system address books (as run by `occ federation:sync-addressbooks`).
+ *
+ * Defaults to ``30`` seconds
+ */
+'carddav_sync_request_timeout' => 30,
+
+/**
  * `true` enabled a relaxed session timeout, where the session timeout would no longer be
  * handled by Nextcloud but by either the PHP garbage collection or the expiration of
  * potential other session backends like redis.
@@ -361,8 +367,10 @@ $CONFIG = [
 
 /**
  * Enable or disable the automatic logout after session_lifetime, even if session
- * keepalive is enabled. This will make sure that an inactive browser will be logged out
- * even if requests to the server might extend the session lifetime.
+ * keepalive is enabled. This will make sure that an inactive browser will log itself out
+ * even if requests to the server might extend the session lifetime. Note: the logout is
+ * handled on the client side. This is not a way to limit the duration of potentially
+ * compromised sessions.
  *
  * Defaults to ``false``
  */
@@ -399,6 +407,17 @@ $CONFIG = [
 'auth.bruteforce.protection.enabled' => true,
 
 /**
+ * Whether the brute force protection should write into the database even when a memory cache is available
+ *
+ * Using the database is most likely worse for performance, but makes investigating
+ * issues a lot easier as it's possible to look directly at the table to see all
+ * logged remote addresses and actions.
+ *
+ * Defaults to ``false``
+ */
+'auth.bruteforce.protection.force.database' => false,
+
+/**
  * Whether the brute force protection shipped with Nextcloud should be set to testing mode.
  *
  * In testing mode brute force attempts are still recorded, but the requests do
@@ -410,6 +429,17 @@ $CONFIG = [
  * Defaults to ``false``
  */
 'auth.bruteforce.protection.testing' => false,
+
+/**
+ * Brute force protection: maximum number of attempts before blocking
+ *
+ * When more than max-attempts login requests are sent to Nextcloud, requests
+ * will abort with "429 Too Many Requests".
+ * For security reasons, change it only if you know what you are doing.
+ *
+ * Defaults to ``10``
+ */
+'auth.bruteforce.max-attempts' => 10,
 
 /**
  * Whether the rate limit protection shipped with Nextcloud should be enabled or not.
@@ -501,7 +531,7 @@ $CONFIG = [
 'mail_smtpdebug' => false,
 
 /**
- * Which mode to use for sending mail: ``sendmail``, ``smtp`` or ``qmail``.
+ * Which mode to use for sending mail: ``sendmail``, ``smtp``, ``qmail`` or ``null``.
  *
  * If you are using local or remote SMTP, set this to ``smtp``.
  *
@@ -510,6 +540,9 @@ $CONFIG = [
  *
  * For ``qmail`` the binary is /var/qmail/bin/sendmail, and it must be installed
  * on your Unix system.
+ *
+ * Use the string ``null`` to send no mails (disable mail delivery). This can be
+ * useful if mails should be sent via APIs and rendering messages is not necessary.
  *
  * Defaults to ``smtp``
  */
@@ -654,6 +687,8 @@ $CONFIG = [
  * are generated within Nextcloud using any kind of command line tools (cron or
  * occ). The value should contain the full base URL:
  * ``https://www.example.com/nextcloud``
+ * Please make sure to set the value to the URL that your users mainly use to access this Nextcloud.
+ * Otherwise there might be problems with the URL generation via cron.
  *
  * Defaults to ``''`` (empty string)
  */
@@ -900,16 +935,16 @@ $CONFIG = [
  *
  * Defaults to the following domains:
  *
- *  - www.nextcloud.com
- *  - www.startpage.com
- *  - www.eff.org
- *  - www.edri.org
+ *  - https://www.nextcloud.com
+ *  - https://www.startpage.com
+ *  - https://www.eff.org
+ *  - https://www.edri.org
  */
 'connectivity_check_domains' => [
-	'www.nextcloud.com',
-	'www.startpage.com',
-	'www.eff.org',
-	'www.edri.org'
+	'https://www.nextcloud.com',
+	'https://www.startpage.com',
+	'https://www.eff.org',
+	'https://www.edri.org'
 ],
 
 /**
@@ -1393,6 +1428,14 @@ $CONFIG = [
 'metadata_max_filesize' => 256,
 
 /**
+ * Maximum file size for file conversion.
+ * If a file exceeds this size, the file will not be converted.
+ *
+ * Default: 100 MiB
+ */
+'max_file_conversion_filesize' => 100,
+
+/**
  * LDAP
  *
  * Global settings used by LDAP User and Group Backend
@@ -1845,6 +1888,15 @@ $CONFIG = [
 'transferIncomingShares' => false,
 
 /**
+ * Federated Cloud Sharing
+ */
+
+ /**
+  * Allow self-signed certificates for federated shares
+  */
+'sharing.federation.allowSelfSignedCertificates' => false,
+
+/**
  * Hashing
  */
 
@@ -2077,6 +2129,14 @@ $CONFIG = [
  */
 'enforce_theme' => '',
 
+
+/**
+ * This setting allows to disable the PWA functionality that allows browsers to open web applications in dedicated windows.
+ *
+ * Defaults to ``true``
+ */
+'theming.standalone_window.enabled' => true,
+
 /**
  * The default cipher for encrypting files. Currently supported are:
  *  - AES-256-CTR
@@ -2107,9 +2167,18 @@ $CONFIG = [
  * client may not function as expected, and could lead to permanent data loss for
  * clients or other unexpected results.
  *
- * Defaults to ``2.3.0``
+ * Defaults to ``2.7.0``
  */
-'minimum.supported.desktop.version' => '2.3.0',
+'minimum.supported.desktop.version' => '2.7.0',
+
+/**
+ * The maximum Nextcloud desktop client version that will be allowed to sync with
+ * this server instance. All connections made from later clients will be denied
+ * by the server.
+ *
+ * Defaults to 99.99.99
+ */
+'maximum.supported.desktop.version' => '99.99.99',
 
 /**
  * Option to allow local storage to contain symlinks.
@@ -2268,21 +2337,6 @@ $CONFIG = [
  * Defaults to ``10`` megabytes
  */
 'max_filesize_animated_gifs_public_sharing' => 10,
-
-
-/**
- * Enables transactional file locking.
- * This is enabled by default.
- *
- * Prevents concurrent processes from accessing the same files
- * at the same time. Can help prevent side effects that would
- * be caused by concurrent operations. Mainly relevant for
- * very large installations with many users working with
- * shared files.
- *
- * Defaults to ``true``
- */
-'filelocking.enabled' => true,
 
 /**
  * Set the lock's time-to-live in seconds.
@@ -2528,9 +2582,51 @@ $CONFIG = [
 'unified_search.enabled' => false,
 
 /**
- * Enable features that are do respect accessibility standards yet.
+ * Enable features that don't respect accessibility standards yet.
  *
  * Defaults to ``true``
  */
 'enable_non-accessible_features' => true,
+
+/**
+ * Directories where nextcloud looks for binaries.
+ * This is used to find external binaries like libreoffice, sendmail, ffmpeg and more.
+ *
+ * Defaults to ``['/usr/local/sbin','/usr/local/bin','/usr/sbin','/usr/bin','/sbin','/bin','/opt/bin']``
+ */
+'binary_search_paths' => [
+	'/usr/local/sbin',
+	'/usr/local/bin',
+	'/usr/sbin',
+	'/usr/bin',
+	'/sbin',
+	'/bin',
+	'/opt/bin',
+],
+
+/**
+ * The maximum chunk size to use for chunked uploads.
+ * A bigger chunk size results in higher throughput, but above 100 MiB there are only diminishing returns,
+ * while services like Cloudflare already limit to 100 MiB.
+ *
+ * Defaults to 100 MiB.
+ */
+'files.chunked_upload.max_size' => 100 * 1024 * 1024,
+
+/**
+ * The maximum number of chunks uploaded in parallel during chunked uploads.
+ * A bigger count results in higher throughput, but will also consume more server workers,
+ * while the improvements diminish.
+ *
+ * Defaults to 5.
+ */
+'files.chunked_upload.max_parallel_count' => 5,
+
+/**
+ * Allow users to manually delete files from their trashbin.
+ * Automated deletions are not affected and will continue to work in cases like low remaining quota for example.
+ *
+ * Defaults to true.
+ */
+'files.trash.delete' => true,
 ];

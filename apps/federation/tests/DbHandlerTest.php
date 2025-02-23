@@ -11,6 +11,7 @@ use OCA\Federation\DbHandler;
 use OCA\Federation\TrustedServers;
 use OCP\IDBConnection;
 use OCP\IL10N;
+use OCP\Server;
 use Test\TestCase;
 
 /**
@@ -33,7 +34,7 @@ class DbHandlerTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->connection = \OC::$server->getDatabaseConnection();
+		$this->connection = Server::get(IDBConnection::class);
 		$this->il10n = $this->getMockBuilder(IL10N::class)->getMock();
 
 		$this->dbHandler = new DbHandler(
@@ -62,7 +63,7 @@ class DbHandlerTest extends TestCase {
 	 * @param string $expectedUrl the url we expect to be written to the db
 	 * @param string $expectedHash the hash value we expect to be written to the db
 	 */
-	public function testAddServer($url, $expectedUrl, $expectedHash) {
+	public function testAddServer($url, $expectedUrl, $expectedHash): void {
 		$id = $this->dbHandler->addServer($url);
 
 		$query = $this->connection->getQueryBuilder()->select('*')->from($this->dbTable);
@@ -85,7 +86,7 @@ class DbHandlerTest extends TestCase {
 		];
 	}
 
-	public function testRemove() {
+	public function testRemove(): void {
 		$id1 = $this->dbHandler->addServer('server1');
 		$id2 = $this->dbHandler->addServer('server2');
 
@@ -112,7 +113,7 @@ class DbHandlerTest extends TestCase {
 	}
 
 
-	public function testGetServerById() {
+	public function testGetServerById(): void {
 		$this->dbHandler->addServer('server1');
 		$id = $this->dbHandler->addServer('server2');
 
@@ -120,7 +121,7 @@ class DbHandlerTest extends TestCase {
 		$this->assertSame('server2', $result['url']);
 	}
 
-	public function testGetAll() {
+	public function testGetAll(): void {
 		$id1 = $this->dbHandler->addServer('server1');
 		$id2 = $this->dbHandler->addServer('server2');
 
@@ -139,7 +140,7 @@ class DbHandlerTest extends TestCase {
 	 * @param string $checkForServer
 	 * @param bool $expected
 	 */
-	public function testServerExists($serverInTable, $checkForServer, $expected) {
+	public function testServerExists($serverInTable, $checkForServer, $expected): void {
 		$this->dbHandler->addServer($serverInTable);
 		$this->assertSame($expected,
 			$this->dbHandler->serverExists($checkForServer)
@@ -173,7 +174,7 @@ class DbHandlerTest extends TestCase {
 		$this->assertSame('token', $result[0]['token']);
 	}
 
-	public function testGetToken() {
+	public function testGetToken(): void {
 		$this->dbHandler->addServer('server1');
 		$this->dbHandler->addToken('http://server1', 'token');
 		$this->assertSame('token',
@@ -200,7 +201,7 @@ class DbHandlerTest extends TestCase {
 		$this->assertSame('secret', $result[0]['shared_secret']);
 	}
 
-	public function testGetSharedSecret() {
+	public function testGetSharedSecret(): void {
 		$this->dbHandler->addServer('server1');
 		$this->dbHandler->addSharedSecret('http://server1', 'secret');
 		$this->assertSame('secret',
@@ -208,7 +209,7 @@ class DbHandlerTest extends TestCase {
 		);
 	}
 
-	public function testSetServerStatus() {
+	public function testSetServerStatus(): void {
 		$this->dbHandler->addServer('server1');
 		$query = $this->connection->getQueryBuilder()->select('*')->from($this->dbTable);
 
@@ -227,7 +228,7 @@ class DbHandlerTest extends TestCase {
 		$this->assertSame(TrustedServers::STATUS_OK, (int)$result[0]['status']);
 	}
 
-	public function testGetServerStatus() {
+	public function testGetServerStatus(): void {
 		$this->dbHandler->addServer('server1');
 		$this->dbHandler->setServerStatus('http://server1', TrustedServers::STATUS_OK);
 		$this->assertSame(TrustedServers::STATUS_OK,
@@ -248,7 +249,7 @@ class DbHandlerTest extends TestCase {
 	 * @param string $url
 	 * @param string $expected
 	 */
-	public function testHash($url, $expected) {
+	public function testHash($url, $expected): void {
 		$this->assertSame($expected,
 			$this->invokePrivate($this->dbHandler, 'hash', [$url])
 		);
@@ -269,7 +270,7 @@ class DbHandlerTest extends TestCase {
 	 * @param string $url
 	 * @param string $expected
 	 */
-	public function testNormalizeUrl($url, $expected) {
+	public function testNormalizeUrl($url, $expected): void {
 		$this->assertSame($expected,
 			$this->invokePrivate($this->dbHandler, 'normalizeUrl', [$url])
 		);
@@ -288,7 +289,7 @@ class DbHandlerTest extends TestCase {
 	/**
 	 * @dataProvider providesAuth
 	 */
-	public function testAuth($expectedResult, $user, $password) {
+	public function testAuth($expectedResult, $user, $password): void {
 		if ($expectedResult) {
 			$this->dbHandler->addServer('url1');
 			$this->dbHandler->addSharedSecret('url1', $password);

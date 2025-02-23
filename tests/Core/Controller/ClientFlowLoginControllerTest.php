@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * SPDX-FileCopyrightText: 2017 Nextcloud GmbH and Nextcloud contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -28,38 +31,25 @@ use OCP\IUserSession;
 use OCP\Security\ICrypto;
 use OCP\Security\ISecureRandom;
 use OCP\Session\Exceptions\SessionNotAvailableException;
+use PHPUnit\Framework\MockObject\MockObject;
 use Test\TestCase;
 
 class ClientFlowLoginControllerTest extends TestCase {
-	/** @var IRequest|\PHPUnit\Framework\MockObject\MockObject */
-	private $request;
-	/** @var IUserSession|\PHPUnit\Framework\MockObject\MockObject */
-	private $userSession;
-	/** @var IL10N|\PHPUnit\Framework\MockObject\MockObject */
-	private $l10n;
-	/** @var Defaults|\PHPUnit\Framework\MockObject\MockObject */
-	private $defaults;
-	/** @var ISession|\PHPUnit\Framework\MockObject\MockObject */
-	private $session;
-	/** @var IProvider|\PHPUnit\Framework\MockObject\MockObject */
-	private $tokenProvider;
-	/** @var ISecureRandom|\PHPUnit\Framework\MockObject\MockObject */
-	private $random;
-	/** @var IURLGenerator|\PHPUnit\Framework\MockObject\MockObject */
-	private $urlGenerator;
-	/** @var ClientMapper|\PHPUnit\Framework\MockObject\MockObject */
-	private $clientMapper;
-	/** @var AccessTokenMapper|\PHPUnit\Framework\MockObject\MockObject */
-	private $accessTokenMapper;
-	/** @var ICrypto|\PHPUnit\Framework\MockObject\MockObject */
-	private $crypto;
-	/** @var IEventDispatcher|\PHPUnit\Framework\MockObject\MockObject */
-	private $eventDispatcher;
-	/** @var ITimeFactory|\PHPUnit\Framework\MockObject\MockObject */
-	private $timeFactory;
+	private IRequest&MockObject $request;
+	private IUserSession&MockObject $userSession;
+	private IL10N&MockObject $l10n;
+	private Defaults&MockObject $defaults;
+	private ISession&MockObject $session;
+	private IProvider&MockObject $tokenProvider;
+	private ISecureRandom&MockObject $random;
+	private IURLGenerator&MockObject $urlGenerator;
+	private ClientMapper&MockObject $clientMapper;
+	private AccessTokenMapper&MockObject $accessTokenMapper;
+	private ICrypto&MockObject $crypto;
+	private IEventDispatcher&MockObject $eventDispatcher;
+	private ITimeFactory&MockObject $timeFactory;
 
-	/** @var ClientFlowLoginController */
-	private $clientFlowLoginController;
+	private ClientFlowLoginController $clientFlowLoginController;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -98,11 +88,11 @@ class ClientFlowLoginControllerTest extends TestCase {
 			$this->accessTokenMapper,
 			$this->crypto,
 			$this->eventDispatcher,
-			$this->timeFactory
+			$this->timeFactory,
 		);
 	}
 
-	public function testShowAuthPickerPageNoClientOrOauthRequest() {
+	public function testShowAuthPickerPageNoClientOrOauthRequest(): void {
 		$expected = new StandaloneTemplateResponse(
 			'core',
 			'error',
@@ -121,7 +111,7 @@ class ClientFlowLoginControllerTest extends TestCase {
 		$this->assertEquals($expected, $this->clientFlowLoginController->showAuthPickerPage());
 	}
 
-	public function testShowAuthPickerPageWithOcsHeader() {
+	public function testShowAuthPickerPageWithOcsHeader(): void {
 		$this->request
 			->method('getHeader')
 			->withConsecutive(
@@ -137,7 +127,7 @@ class ClientFlowLoginControllerTest extends TestCase {
 			->method('generate')
 			->with(
 				64,
-				ISecureRandom::CHAR_LOWER.ISecureRandom::CHAR_UPPER.ISecureRandom::CHAR_DIGITS
+				ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_DIGITS
 			)
 			->willReturn('StateToken');
 		$this->session
@@ -183,7 +173,7 @@ class ClientFlowLoginControllerTest extends TestCase {
 		$this->assertEquals($expected, $this->clientFlowLoginController->showAuthPickerPage());
 	}
 
-	public function testShowAuthPickerPageWithOauth() {
+	public function testShowAuthPickerPageWithOauth(): void {
 		$this->request
 			->method('getHeader')
 			->withConsecutive(
@@ -207,7 +197,7 @@ class ClientFlowLoginControllerTest extends TestCase {
 			->method('generate')
 			->with(
 				64,
-				ISecureRandom::CHAR_LOWER.ISecureRandom::CHAR_UPPER.ISecureRandom::CHAR_DIGITS
+				ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_DIGITS
 			)
 			->willReturn('StateToken');
 		$this->session
@@ -253,7 +243,7 @@ class ClientFlowLoginControllerTest extends TestCase {
 		$this->assertEquals($expected, $this->clientFlowLoginController->showAuthPickerPage('MyClientIdentifier'));
 	}
 
-	public function testGenerateAppPasswordWithInvalidToken() {
+	public function testGenerateAppPasswordWithInvalidToken(): void {
 		$this->session
 			->expects($this->once())
 			->method('get')
@@ -276,7 +266,7 @@ class ClientFlowLoginControllerTest extends TestCase {
 		$this->assertEquals($expected, $this->clientFlowLoginController->generateAppPassword('MyStateToken'));
 	}
 
-	public function testGenerateAppPasswordWithSessionNotAvailableException() {
+	public function testGenerateAppPasswordWithSessionNotAvailableException(): void {
 		$this->session
 			->expects($this->once())
 			->method('get')
@@ -296,7 +286,7 @@ class ClientFlowLoginControllerTest extends TestCase {
 		$this->assertEquals($expected, $this->clientFlowLoginController->generateAppPassword('MyStateToken'));
 	}
 
-	public function testGenerateAppPasswordWithInvalidTokenException() {
+	public function testGenerateAppPasswordWithInvalidTokenException(): void {
 		$this->session
 			->expects($this->once())
 			->method('get')
@@ -321,7 +311,7 @@ class ClientFlowLoginControllerTest extends TestCase {
 		$this->assertEquals($expected, $this->clientFlowLoginController->generateAppPassword('MyStateToken'));
 	}
 
-	public function testGeneratePasswordWithPassword() {
+	public function testGeneratePasswordWithPassword(): void {
 		$this->session
 			->expects($this->once())
 			->method('get')
@@ -405,7 +395,7 @@ class ClientFlowLoginControllerTest extends TestCase {
 	 * ["https://example.com/redirect.php?hello=world", "https://example.com/redirect.php?hello=world&state=MyOauthState&code=MyAccessCode"]
 	 *
 	 */
-	public function testGeneratePasswordWithPasswordForOauthClient($redirectUri, $redirectUrl) {
+	public function testGeneratePasswordWithPasswordForOauthClient($redirectUri, $redirectUrl): void {
 		$this->session
 			->method('get')
 			->withConsecutive(
@@ -448,8 +438,8 @@ class ClientFlowLoginControllerTest extends TestCase {
 				[128]
 			)
 			->willReturnMap([
-				[72, ISecureRandom::CHAR_UPPER.ISecureRandom::CHAR_LOWER.ISecureRandom::CHAR_DIGITS, 'MyGeneratedToken'],
-				[128, ISecureRandom::CHAR_UPPER.ISecureRandom::CHAR_LOWER.ISecureRandom::CHAR_DIGITS, 'MyAccessCode'],
+				[72, ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_DIGITS, 'MyGeneratedToken'],
+				[128, ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_DIGITS, 'MyAccessCode'],
 			]);
 		$user = $this->createMock(IUser::class);
 		$user
@@ -490,7 +480,7 @@ class ClientFlowLoginControllerTest extends TestCase {
 		$this->assertEquals($expected, $this->clientFlowLoginController->generateAppPassword('MyStateToken', 'MyClientIdentifier'));
 	}
 
-	public function testGeneratePasswordWithoutPassword() {
+	public function testGeneratePasswordWithoutPassword(): void {
 		$this->session
 			->expects($this->once())
 			->method('get')
@@ -621,7 +611,7 @@ class ClientFlowLoginControllerTest extends TestCase {
 	 * @param string $protocol
 	 * @param string $expected
 	 */
-	public function testGeneratePasswordWithHttpsProxy(array $headers, $protocol, $expected) {
+	public function testGeneratePasswordWithHttpsProxy(array $headers, $protocol, $expected): void {
 		$this->session
 			->expects($this->once())
 			->method('get')

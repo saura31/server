@@ -1,12 +1,11 @@
 OC.L10N.register(
     "updatenotification",
     {
-    "{version} is available. Get more information on how to update." : "Tá {version} ar fáil. Faigh tuilleadh eolais faoi conas nuashonrú a dhéanamh.",
     "Channel updated" : "Nuashonraíodh an cainéal",
     "Web updater is disabled" : "Tá an nuashonrú Gréasáin díchumasaithe",
     "App updated" : "Nuashonraíodh an app",
     "See what's new" : "Féach cad atá nua",
-    "{app} updated to version {version}" : "Nuashonraíodh {app} go leagan {leagan}",
+    "{app} updated to version {version}" : "Nuashonraíodh {app} go leagan {version}",
     "Update notifications" : "Nuashonraigh fógraí",
     "The update server could not be reached since %d days to check for new updates." : "Níorbh fhéidir an freastalaí nuashonraithe a bhaint amach ó %d lá chun seiceáil le haghaidh nuashonruithe nua.",
     "Please check the Nextcloud and server log files for errors." : "Seiceáil an Nextcloud agus comhaid logála an fhreastalaí le haghaidh earráidí le do thoil.",
@@ -57,10 +56,6 @@ OC.L10N.register(
     "_<strong>%n</strong> app has no compatible version for this Nextcloud version available._::_<strong>%n</strong> apps have no compatible version for this Nextcloud version available._" : ["Níl leagan comhoiriúnach don leagan seo de Nextcloud ar fáil ag<strong>%n</strong>.","Níl leagan comhoiriúnach don leagan seo de Nextcloud ar fáil ag<strong>%n</strong>.","Níl leagan comhoiriúnach don leagan seo de Nextcloud ar fáil ag<strong>%n</strong>. ","Níl leagan comhoiriúnach don leagan seo de Nextcloud ar fáil ag<strong>%n</strong>.","Níl leagan comhoiriúnach don leagan seo de Nextcloud ar fáil ag<strong>%n</strong>."],
     "Changelog for app {app}" : "Changelog don aip {app}",
     "What's new in {app} version {version}" : "A bhfuil nua i {app} leagan {version}",
-    "Update to %1$s is available." : "Tá nuashonrú go %1$s ar fáil.",
-    "Displays update notifications for Nextcloud and provides the SSO for the updater." : "Taispeánann sé fógraí nuashonraithe do Nextcloud agus soláthraíonn sé an SSO don nuashonróir.",
-    "Please note that the web updater is not recommended with more than 100 users! Please use the command line updater instead!" : "Tabhair faoi deara le do thoil nach moltar an nuashonrú gréasáin le níos mó ná 100 úsáideoirí! Bain úsáid as an nuashonrú líne ordaithe ina ionad sin le do thoil!",
-    "Please use the command line updater to update." : "Bain úsáid as an nuashonrú líne ordaithe chun nuashonrú a dhéanamh le do thoil.",
-    "Note that after a new release the update only shows up after the first minor release or later. We roll out new versions spread out over time to our users and sometimes skip a version when issues are found. Learn more about updates and release channels at {link}" : "Tabhair faoi deara nach dtaispeánfar an nuashonrú tar éis eisiúint nua ach amháin tar éis an chéad mhioneisiúint nó níos déanaí. Déanaimid leaganacha nua a rolladh amach thar am chuig ár n-úsáideoirí agus uaireanta ní dhéanaimid réidh le leagan nuair a aimsítear saincheisteanna. Foghlaim tuilleadh faoi nuashonruithe agus cainéil eisithe ag {link}"
+    "{version} is available. Get more information on how to update." : "Tá {version} ar fáil. Faigh tuilleadh eolais faoi conas nuashonrú a dhéanamh."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);");

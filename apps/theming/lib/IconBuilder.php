@@ -10,13 +10,6 @@ use ImagickPixel;
 use OCP\Files\SimpleFS\ISimpleFile;
 
 class IconBuilder {
-	/** @var ThemingDefaults */
-	private $themingDefaults;
-	/** @var Util */
-	private $util;
-	/** @var ImageManager */
-	private $imageManager;
-
 	/**
 	 * IconBuilder constructor.
 	 *
@@ -25,13 +18,10 @@ class IconBuilder {
 	 * @param ImageManager $imageManager
 	 */
 	public function __construct(
-		ThemingDefaults $themingDefaults,
-		Util $util,
-		ImageManager $imageManager
+		private ThemingDefaults $themingDefaults,
+		private Util $util,
+		private ImageManager $imageManager,
 	) {
-		$this->themingDefaults = $themingDefaults;
-		$this->util = $util;
-		$this->imageManager = $imageManager;
 	}
 
 	/**
@@ -127,12 +117,12 @@ class IconBuilder {
 		$cornerRadius = 0.2 * $size;
 		$background = '<?xml version="1.0" encoding="UTF-8"?>' .
 			'<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" width="' . $size . '" height="' . $size . '" xmlns:xlink="http://www.w3.org/1999/xlink">' .
-			'<rect x="0" y="0" rx="' . $cornerRadius . '" ry="' . $cornerRadius . '" width="' . $size. '" height="' . $size . '" style="fill:' . $color . ';" />' .
+			'<rect x="0" y="0" rx="' . $cornerRadius . '" ry="' . $cornerRadius . '" width="' . $size . '" height="' . $size . '" style="fill:' . $color . ';" />' .
 			'</svg>';
 		// resize svg magic as this seems broken in Imagemagick
 		if ($mime === 'image/svg+xml' || substr($appIconContent, 0, 4) === '<svg') {
 			if (substr($appIconContent, 0, 5) !== '<?xml') {
-				$svg = '<?xml version="1.0"?>'.$appIconContent;
+				$svg = '<?xml version="1.0"?>' . $appIconContent;
 			} else {
 				$svg = $appIconContent;
 			}

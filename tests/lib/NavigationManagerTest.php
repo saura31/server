@@ -11,6 +11,7 @@ use OC\App\AppManager;
 use OC\Group\Manager;
 use OC\NavigationManager;
 use OC\SubAdmin;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IConfig;
 use OCP\IGroupManager;
 use OCP\IL10N;
@@ -18,6 +19,8 @@ use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\IUserSession;
 use OCP\L10N\IFactory;
+use OCP\Navigation\Events\LoadAdditionalEntriesEvent;
+use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 
 class NavigationManagerTest extends TestCase {
@@ -34,6 +37,8 @@ class NavigationManagerTest extends TestCase {
 	/** @var IConfig|\PHPUnit\Framework\MockObject\MockObject */
 	protected $config;
 
+	protected IEVentDispatcher|MockObject $dispatcher;
+
 	/** @var \OC\NavigationManager */
 	protected $navigationManager;
 	protected LoggerInterface $logger;
@@ -48,6 +53,7 @@ class NavigationManagerTest extends TestCase {
 		$this->groupManager = $this->createMock(Manager::class);
 		$this->config = $this->createMock(IConfig::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
+		$this->dispatcher = $this->createMock(IEventDispatcher::class);
 		$this->navigationManager = new NavigationManager(
 			$this->appManager,
 			$this->urlGenerator,
@@ -56,6 +62,7 @@ class NavigationManagerTest extends TestCase {
 			$this->groupManager,
 			$this->config,
 			$this->logger,
+			$this->dispatcher,
 		);
 
 		$this->navigationManager->clear(false);
@@ -118,7 +125,7 @@ class NavigationManagerTest extends TestCase {
 	 * @param array $entry
 	 * @param array $expectedEntry
 	 */
-	public function testAddArray(array $entry, array $expectedEntry) {
+	public function testAddArray(array $entry, array $expectedEntry): void {
 		$this->assertEmpty($this->navigationManager->getAll('all'), 'Expected no navigation entry exists');
 		$this->navigationManager->add($entry);
 
@@ -136,7 +143,7 @@ class NavigationManagerTest extends TestCase {
 	 * @param array $entry
 	 * @param array $expectedEntry
 	 */
-	public function testAddClosure(array $entry, array $expectedEntry) {
+	public function testAddClosure(array $entry, array $expectedEntry): void {
 		global $testAddClosureNumberOfCalls;
 		$testAddClosureNumberOfCalls = 0;
 
@@ -163,7 +170,7 @@ class NavigationManagerTest extends TestCase {
 		$this->assertEmpty($this->navigationManager->getAll('all'), 'Expected no navigation entry exists after clear()');
 	}
 
-	public function testAddArrayClearGetAll() {
+	public function testAddArrayClearGetAll(): void {
 		$entry = [
 			'id' => 'entry id',
 			'name' => 'link text',
@@ -178,7 +185,7 @@ class NavigationManagerTest extends TestCase {
 		$this->assertEmpty($this->navigationManager->getAll(), 'Expected no navigation entry exists after clear()');
 	}
 
-	public function testAddClosureClearGetAll() {
+	public function testAddClosureClearGetAll(): void {
 		$this->assertEmpty($this->navigationManager->getAll(), 'Expected no navigation entry exists');
 
 		$entry = [
@@ -209,7 +216,7 @@ class NavigationManagerTest extends TestCase {
 	/**
 	 * @dataProvider providesNavigationConfig
 	 */
-	public function testWithAppManager($expected, $navigation, $isAdmin = false) {
+	public function testWithAppManager($expected, $navigation, $isAdmin = false): void {
 		$l = $this->createMock(IL10N::class);
 		$l->expects($this->any())->method('t')->willReturnCallback(function ($text, $parameters = []) {
 			return vsprintf($text, $parameters);
@@ -256,6 +263,11 @@ class NavigationManagerTest extends TestCase {
 		$this->groupManager->expects($this->any())->method('getSubAdmin')->willReturn($subadmin);
 
 		$this->navigationManager->clear();
+		$this->dispatcher->expects($this->once())
+			->method('dispatchTyped')
+			->willReturnCallback(function ($event) {
+				$this->assertInstanceOf(LoadAdditionalEntriesEvent::class, $event);
+			});
 		$entries = $this->navigationManager->getAll('all');
 		$this->assertEquals($expected, $entries);
 	}
@@ -311,7 +323,7 @@ class NavigationManagerTest extends TestCase {
 			'logout' => [
 				'id' => 'logout',
 				'order' => 99999,
-				'href' => 'https://example.com/logout?requesttoken='. urlencode(\OCP\Util::callRegister()),
+				'href' => 'https://example.com/logout?requesttoken=' . urlencode(\OCP\Util::callRegister()),
 				'icon' => '/apps/core/img/actions/logout.svg',
 				'name' => 'Log out',
 				'active' => false,
@@ -489,7 +501,7 @@ class NavigationManagerTest extends TestCase {
 		];
 	}
 
-	public function testWithAppManagerAndApporder() {
+	public function testWithAppManagerAndApporder(): void {
 		$l = $this->createMock(IL10N::class);
 		$l->expects($this->any())->method('t')->willReturnCallback(function ($text, $parameters = []) {
 			return vsprintf($text, $parameters);
@@ -558,6 +570,11 @@ class NavigationManagerTest extends TestCase {
 		$this->groupManager->expects($this->any())->method('getSubAdmin')->willReturn($subadmin);
 
 		$this->navigationManager->clear();
+		$this->dispatcher->expects($this->once())
+			->method('dispatchTyped')
+			->willReturnCallback(function ($event) {
+				$this->assertInstanceOf(LoadAdditionalEntriesEvent::class, $event);
+			});
 		$entries = $this->navigationManager->getAll();
 		$this->assertEquals($expected, $entries);
 	}
@@ -693,7 +710,7 @@ class NavigationManagerTest extends TestCase {
 	/**
 	 * @dataProvider provideDefaultEntries
 	 */
-	public function testGetDefaultEntryIdForUser($defaultApps, $userDefaultApps, $userApporder, $withFallbacks, $expectedApp) {
+	public function testGetDefaultEntryIdForUser($defaultApps, $userDefaultApps, $userApporder, $withFallbacks, $expectedApp): void {
 		$this->navigationManager->add([
 			'id' => 'files',
 		]);
@@ -701,7 +718,7 @@ class NavigationManagerTest extends TestCase {
 			'id' => 'settings',
 		]);
 
-		$this->appManager->method('getInstalledApps')->willReturn([]);
+		$this->appManager->method('getEnabledApps')->willReturn([]);
 
 		$user = $this->createMock(IUser::class);
 		$user->method('getUID')->willReturn('user1');
@@ -725,8 +742,8 @@ class NavigationManagerTest extends TestCase {
 		$this->assertEquals($expectedApp, $this->navigationManager->getDefaultEntryIdForUser(null, $withFallbacks));
 	}
 
-	public function testDefaultEntryUpdated() {
-		$this->appManager->method('getInstalledApps')->willReturn([]);
+	public function testDefaultEntryUpdated(): void {
+		$this->appManager->method('getEnabledApps')->willReturn([]);
 
 		$user = $this->createMock(IUser::class);
 		$user->method('getUID')->willReturn('user1');

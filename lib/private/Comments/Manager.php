@@ -320,7 +320,7 @@ class Manager implements ICommentsManager {
 		$objectId,
 		$limit = 0,
 		$offset = 0,
-		?\DateTime $notOlderThan = null
+		?\DateTime $notOlderThan = null,
 	) {
 		$comments = [];
 
@@ -372,7 +372,7 @@ class Manager implements ICommentsManager {
 		int $lastKnownCommentId,
 		string $sortDirection = 'asc',
 		int $limit = 30,
-		bool $includeLastKnown = false
+		bool $includeLastKnown = false,
 	): array {
 		return $this->getCommentsWithVerbForObjectSinceComment(
 			$objectType,
@@ -403,7 +403,7 @@ class Manager implements ICommentsManager {
 		int $lastKnownCommentId,
 		string $sortDirection = 'asc',
 		int $limit = 30,
-		bool $includeLastKnown = false
+		bool $includeLastKnown = false,
 	): array {
 		$comments = [];
 
@@ -440,14 +440,14 @@ class Manager implements ICommentsManager {
 					$query->expr()->orX(
 						$query->expr()->lt(
 							'creation_timestamp',
-							$query->createNamedParameter($lastKnownCommentDateTime, IQueryBuilder::PARAM_DATE),
-							IQueryBuilder::PARAM_DATE
+							$query->createNamedParameter($lastKnownCommentDateTime, IQueryBuilder::PARAM_DATETIME_MUTABLE),
+							IQueryBuilder::PARAM_DATETIME_MUTABLE
 						),
 						$query->expr()->andX(
 							$query->expr()->eq(
 								'creation_timestamp',
-								$query->createNamedParameter($lastKnownCommentDateTime, IQueryBuilder::PARAM_DATE),
-								IQueryBuilder::PARAM_DATE
+								$query->createNamedParameter($lastKnownCommentDateTime, IQueryBuilder::PARAM_DATETIME_MUTABLE),
+								IQueryBuilder::PARAM_DATETIME_MUTABLE
 							),
 							$idComparison
 						)
@@ -463,14 +463,14 @@ class Manager implements ICommentsManager {
 					$query->expr()->orX(
 						$query->expr()->gt(
 							'creation_timestamp',
-							$query->createNamedParameter($lastKnownCommentDateTime, IQueryBuilder::PARAM_DATE),
-							IQueryBuilder::PARAM_DATE
+							$query->createNamedParameter($lastKnownCommentDateTime, IQueryBuilder::PARAM_DATETIME_MUTABLE),
+							IQueryBuilder::PARAM_DATETIME_MUTABLE
 						),
 						$query->expr()->andX(
 							$query->expr()->eq(
 								'creation_timestamp',
-								$query->createNamedParameter($lastKnownCommentDateTime, IQueryBuilder::PARAM_DATE),
-								IQueryBuilder::PARAM_DATE
+								$query->createNamedParameter($lastKnownCommentDateTime, IQueryBuilder::PARAM_DATETIME_MUTABLE),
+								IQueryBuilder::PARAM_DATETIME_MUTABLE
 							),
 							$idComparison
 						)
@@ -575,7 +575,7 @@ class Manager implements ICommentsManager {
 
 		if ($search !== '') {
 			$query->where($query->expr()->iLike('message', $query->createNamedParameter(
-				'%' . $this->dbConn->escapeLikeParameter($search). '%'
+				'%' . $this->dbConn->escapeLikeParameter($search) . '%'
 			)));
 		}
 
@@ -740,7 +740,7 @@ class Manager implements ICommentsManager {
 			->from('comments')
 			->where($query->expr()->eq('object_type', $query->createNamedParameter($objectType)))
 			->andWhere($query->expr()->eq('object_id', $query->createNamedParameter($objectId)))
-			->andWhere($query->expr()->lt('creation_timestamp', $query->createNamedParameter($beforeDate, IQueryBuilder::PARAM_DATE)))
+			->andWhere($query->expr()->lt('creation_timestamp', $query->createNamedParameter($beforeDate, IQueryBuilder::PARAM_DATETIME_MUTABLE)))
 			->orderBy('creation_timestamp', 'desc');
 
 		if ($verb !== '') {
@@ -769,7 +769,7 @@ class Manager implements ICommentsManager {
 		string $objectId,
 		string $verb,
 		string $actorType,
-		array $actors
+		array $actors,
 	): array {
 		$lastComments = [];
 
@@ -1551,7 +1551,7 @@ class Manager implements ICommentsManager {
 		$qb = $this->dbConn->getQueryBuilder();
 		$qb->delete('comments')
 			->where($qb->expr()->lte('expire_date',
-				$qb->createNamedParameter($this->timeFactory->getDateTime(), IQueryBuilder::PARAM_DATE)))
+				$qb->createNamedParameter($this->timeFactory->getDateTime(), IQueryBuilder::PARAM_DATETIME_MUTABLE)))
 			->andWhere($qb->expr()->eq('object_type', $qb->createNamedParameter($objectType)));
 
 		if ($objectId !== '') {

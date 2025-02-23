@@ -12,26 +12,26 @@ use OCA\User_LDAP\DataCollector\LdapDataCollector;
 use OCA\User_LDAP\Exceptions\ConstraintViolationException;
 use OCP\IConfig;
 use OCP\Profiler\IProfiler;
+use OCP\Server;
 use Psr\Log\LoggerInterface;
 
 class LDAP implements ILDAPWrapper {
-	protected string $logFile = '';
 	protected array $curArgs = [];
 	protected LoggerInterface $logger;
 
 	private ?LdapDataCollector $dataCollector = null;
 
-	public function __construct(string $logFile = '') {
-		$this->logFile = $logFile;
-
+	public function __construct(
+		protected string $logFile = '',
+	) {
 		/** @var IProfiler $profiler */
-		$profiler = \OC::$server->get(IProfiler::class);
+		$profiler = Server::get(IProfiler::class);
 		if ($profiler->isEnabled()) {
 			$this->dataCollector = new LdapDataCollector();
 			$profiler->add($this->dataCollector);
 		}
 
-		$this->logger = \OCP\Server::get(LoggerInterface::class);
+		$this->logger = Server::get(LoggerInterface::class);
 	}
 
 	/**
@@ -369,7 +369,7 @@ class LDAP implements ILDAPWrapper {
 
 	/**
 	 * Called after an ldap method is run to act on LDAP error if necessary
-	 * @throw \Exception
+	 * @throws \Exception
 	 */
 	private function postFunctionCall(string $functionName): void {
 		if ($this->isResource($this->curArgs[0])) {

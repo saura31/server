@@ -70,7 +70,7 @@ try {
 	OC_App::loadApps(['filesystem', 'logging']);
 
 	// Check if the app is enabled
-	if (!\OC::$server->getAppManager()->isInstalled($app)) {
+	if (!\OC::$server->getAppManager()->isEnabledForUser($app)) {
 		throw new \Exception('App not installed: ' . $app);
 	}
 
@@ -78,7 +78,7 @@ try {
 	OC_App::loadApp($app);
 	OC_User::setIncognitoMode(true);
 
-	$baseuri = OC::$WEBROOT . '/public.php/'.$service.'/';
+	$baseuri = OC::$WEBROOT . '/public.php/' . $service . '/';
 	require_once $file;
 } catch (Exception $ex) {
 	$status = 500;

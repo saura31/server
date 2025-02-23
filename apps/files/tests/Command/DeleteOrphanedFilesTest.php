@@ -9,7 +9,11 @@ namespace OCA\Files\Tests\Command;
 
 use OC\Files\View;
 use OCA\Files\Command\DeleteOrphanedFiles;
+use OCP\Files\IRootFolder;
 use OCP\Files\StorageNotAvailableException;
+use OCP\IDBConnection;
+use OCP\IUserManager;
+use OCP\Server;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Test\TestCase;
@@ -23,36 +27,25 @@ use Test\TestCase;
  */
 class DeleteOrphanedFilesTest extends TestCase {
 
-	/**
-	 * @var DeleteOrphanedFiles
-	 */
-	private $command;
-
-	/**
-	 * @var \OCP\IDBConnection
-	 */
-	private $connection;
-
-	/**
-	 * @var string
-	 */
-	private $user1;
+	private DeleteOrphanedFiles $command;
+	private IDBConnection $connection;
+	private string $user1;
 
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->connection = \OC::$server->getDatabaseConnection();
+		$this->connection = Server::get(IDBConnection::class);
 
 		$this->user1 = $this->getUniqueID('user1_');
 
-		$userManager = \OC::$server->getUserManager();
+		$userManager = Server::get(IUserManager::class);
 		$userManager->createUser($this->user1, 'pass');
 
 		$this->command = new DeleteOrphanedFiles($this->connection);
 	}
 
 	protected function tearDown(): void {
-		$userManager = \OC::$server->getUserManager();
+		$userManager = Server::get(IUserManager::class);
 		$user1 = $userManager->get($this->user1);
 		if ($user1) {
 			$user1->delete();
@@ -82,7 +75,7 @@ class DeleteOrphanedFilesTest extends TestCase {
 	/**
 	 * Test clearing orphaned files
 	 */
-	public function testClearFiles() {
+	public function testClearFiles(): void {
 		$input = $this->getMockBuilder(InputInterface::class)
 			->disableOriginalConstructor()
 			->getMock();
@@ -90,11 +83,12 @@ class DeleteOrphanedFilesTest extends TestCase {
 			->disableOriginalConstructor()
 			->getMock();
 
+		$rootFolder = Server::get(IRootFolder::class);
+
 		// scan home storage so that mounts are properly setup
-		\OC::$server->getRootFolder()->getUserFolder($this->user1)->getStorage()->getScanner()->scan('');
+		$rootFolder->getUserFolder($this->user1)->getStorage()->getScanner()->scan('');
 
 		$this->loginAsUser($this->user1);
-
 
 		$view = new View('/' . $this->user1 . '/');
 		$view->mkdir('files/test');
@@ -132,6 +126,8 @@ class DeleteOrphanedFilesTest extends TestCase {
 		$this->assertCount(0, $this->getFile($fileInfo->getId()), 'Asserts that file gets cleaned up');
 		$this->assertCount(0, $this->getMounts($numericStorageId), 'Asserts that mount gets cleaned up');
 
+		// Rescan folder to add back to cache before deleting
+		$rootFolder->getUserFolder($this->user1)->getStorage()->getScanner()->scan('');
 		// since we deleted the storage it might throw a (valid) StorageNotAvailableException
 		try {
 			$view->unlink('files/test');

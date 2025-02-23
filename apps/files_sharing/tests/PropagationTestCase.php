@@ -6,9 +6,14 @@
  */
 namespace OCA\Files_Sharing\Tests;
 
+use OC\Files\View;
+use OCA\Files_Sharing\Helper;
+use OCP\IUserSession;
+use OCP\Server;
+
 abstract class PropagationTestCase extends TestCase {
 	/**
-	 * @var \OC\Files\View
+	 * @var View
 	 */
 	protected $rootView;
 	protected $fileIds = []; // [$user=>[$path=>$id]]
@@ -16,7 +21,7 @@ abstract class PropagationTestCase extends TestCase {
 
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
-		\OCA\Files_Sharing\Helper::registerHooks();
+		Helper::registerHooks();
 	}
 
 	protected function setUp(): void {
@@ -39,7 +44,7 @@ abstract class PropagationTestCase extends TestCase {
 	 * @param string $subPath
 	 */
 	protected function assertEtagsChanged($users, $subPath = '') {
-		$oldUser = \OC::$server->getUserSession()->getUser();
+		$oldUser = Server::get(IUserSession::class)->getUser();
 		foreach ($users as $user) {
 			$this->loginAsUser($user);
 			$id = $this->fileIds[$user][$subPath];
@@ -56,7 +61,7 @@ abstract class PropagationTestCase extends TestCase {
 	 * @param string $subPath
 	 */
 	protected function assertEtagsNotChanged($users, $subPath = '') {
-		$oldUser = \OC::$server->getUserSession()->getUser();
+		$oldUser = Server::get(IUserSession::class)->getUser();
 		foreach ($users as $user) {
 			$this->loginAsUser($user);
 			$id = $this->fileIds[$user][$subPath];

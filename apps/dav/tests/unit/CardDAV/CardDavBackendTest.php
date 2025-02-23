@@ -27,6 +27,7 @@ use OCP\IL10N;
 use OCP\IUserManager;
 use OCP\IUserSession;
 use OCP\L10N\IFactory;
+use OCP\Server;
 use OCP\Share\IManager as ShareManager;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\Exception\BadRequest;
@@ -72,35 +73,35 @@ class CardDavBackendTest extends TestCase {
 	public const UNIT_TEST_USER1 = 'principals/users/carddav-unit-test1';
 	public const UNIT_TEST_GROUP = 'principals/groups/carddav-unit-test-group';
 
-	private $vcardTest0 = 'BEGIN:VCARD'.PHP_EOL.
-		'VERSION:3.0'.PHP_EOL.
-		'PRODID:-//Sabre//Sabre VObject 4.1.2//EN'.PHP_EOL.
-		'UID:Test'.PHP_EOL.
-		'FN:Test'.PHP_EOL.
-		'N:Test;;;;'.PHP_EOL.
+	private $vcardTest0 = 'BEGIN:VCARD' . PHP_EOL .
+		'VERSION:3.0' . PHP_EOL .
+		'PRODID:-//Sabre//Sabre VObject 4.1.2//EN' . PHP_EOL .
+		'UID:Test' . PHP_EOL .
+		'FN:Test' . PHP_EOL .
+		'N:Test;;;;' . PHP_EOL .
 		'END:VCARD';
 
-	private $vcardTest1 = 'BEGIN:VCARD'.PHP_EOL.
-		'VERSION:3.0'.PHP_EOL.
-		'PRODID:-//Sabre//Sabre VObject 4.1.2//EN'.PHP_EOL.
-		'UID:Test2'.PHP_EOL.
-		'FN:Test2'.PHP_EOL.
-		'N:Test2;;;;'.PHP_EOL.
+	private $vcardTest1 = 'BEGIN:VCARD' . PHP_EOL .
+		'VERSION:3.0' . PHP_EOL .
+		'PRODID:-//Sabre//Sabre VObject 4.1.2//EN' . PHP_EOL .
+		'UID:Test2' . PHP_EOL .
+		'FN:Test2' . PHP_EOL .
+		'N:Test2;;;;' . PHP_EOL .
 		'END:VCARD';
 
-	private $vcardTest2 = 'BEGIN:VCARD'.PHP_EOL.
-		'VERSION:3.0'.PHP_EOL.
-		'PRODID:-//Sabre//Sabre VObject 4.1.2//EN'.PHP_EOL.
-		'UID:Test3'.PHP_EOL.
-		'FN:Test3'.PHP_EOL.
-		'N:Test3;;;;'.PHP_EOL.
+	private $vcardTest2 = 'BEGIN:VCARD' . PHP_EOL .
+		'VERSION:3.0' . PHP_EOL .
+		'PRODID:-//Sabre//Sabre VObject 4.1.2//EN' . PHP_EOL .
+		'UID:Test3' . PHP_EOL .
+		'FN:Test3' . PHP_EOL .
+		'N:Test3;;;;' . PHP_EOL .
 		'END:VCARD';
 
-	private $vcardTestNoUID = 'BEGIN:VCARD'.PHP_EOL.
-		'VERSION:3.0'.PHP_EOL.
-		'PRODID:-//Sabre//Sabre VObject 4.1.2//EN'.PHP_EOL.
-		'FN:TestNoUID'.PHP_EOL.
-		'N:TestNoUID;;;;'.PHP_EOL.
+	private $vcardTestNoUID = 'BEGIN:VCARD' . PHP_EOL .
+		'VERSION:3.0' . PHP_EOL .
+		'PRODID:-//Sabre//Sabre VObject 4.1.2//EN' . PHP_EOL .
+		'FN:TestNoUID' . PHP_EOL .
+		'N:TestNoUID;;;;' . PHP_EOL .
 		'END:VCARD';
 
 	protected function setUp(): void {
@@ -133,7 +134,7 @@ class CardDavBackendTest extends TestCase {
 			->willReturn([self::UNIT_TEST_GROUP]);
 		$this->dispatcher = $this->createMock(IEventDispatcher::class);
 
-		$this->db = \OC::$server->getDatabaseConnection();
+		$this->db = Server::get(IDBConnection::class);
 		$this->sharingBackend = new Backend($this->userManager,
 			$this->groupManager,
 			$this->principal,
@@ -332,7 +333,7 @@ class CardDavBackendTest extends TestCase {
 			$this->assertArrayHasKey('lastmodified', $card);
 			$this->assertArrayHasKey('etag', $card);
 			$this->assertArrayHasKey('size', $card);
-			$this->assertEquals($this->{ 'vcardTest'.($index + 1) }, $card['carddata']);
+			$this->assertEquals($this->{ 'vcardTest' . ($index + 1) }, $card['carddata']);
 		}
 
 		// delete the card
@@ -526,7 +527,8 @@ class CardDavBackendTest extends TestCase {
 
 		$query = $this->db->getQueryBuilder();
 		$query->select('*')
-			->from('cards_properties');
+			->from('cards_properties')
+			->orderBy('name');
 
 		$qResult = $query->execute();
 		$result = $qResult->fetchAll();
@@ -534,13 +536,13 @@ class CardDavBackendTest extends TestCase {
 
 		$this->assertSame(2, count($result));
 
-		$this->assertSame('UID', $result[0]['name']);
-		$this->assertSame($cardUri, $result[0]['value']);
+		$this->assertSame('FN', $result[0]['name']);
+		$this->assertSame('John Doe', $result[0]['value']);
 		$this->assertSame($bookId, (int)$result[0]['addressbookid']);
 		$this->assertSame($cardId, (int)$result[0]['cardid']);
 
-		$this->assertSame('FN', $result[1]['name']);
-		$this->assertSame('John Doe', $result[1]['value']);
+		$this->assertSame('UID', $result[1]['name']);
+		$this->assertSame($cardUri, $result[1]['value']);
 		$this->assertSame($bookId, (int)$result[1]['addressbookid']);
 		$this->assertSame($cardId, (int)$result[1]['cardid']);
 

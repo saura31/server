@@ -8,6 +8,7 @@ namespace OCA\Files\Tests\Activity\Filter;
 use OCA\Files\Activity\Filter\Favorites;
 use OCA\Files\Activity\Filter\FileChanges;
 use OCP\Activity\IFilter;
+use OCP\Server;
 use Test\TestCase;
 
 /**
@@ -28,8 +29,8 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataFilters
 	 * @param string $filterClass
 	 */
-	public function testImplementsInterface($filterClass) {
-		$filter = \OC::$server->query($filterClass);
+	public function testImplementsInterface($filterClass): void {
+		$filter = Server::get($filterClass);
 		$this->assertInstanceOf(IFilter::class, $filter);
 	}
 
@@ -37,9 +38,9 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataFilters
 	 * @param string $filterClass
 	 */
-	public function testGetIdentifier($filterClass) {
+	public function testGetIdentifier($filterClass): void {
 		/** @var IFilter $filter */
-		$filter = \OC::$server->query($filterClass);
+		$filter = Server::get($filterClass);
 		$this->assertIsString($filter->getIdentifier());
 	}
 
@@ -47,9 +48,9 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataFilters
 	 * @param string $filterClass
 	 */
-	public function testGetName($filterClass) {
+	public function testGetName($filterClass): void {
 		/** @var IFilter $filter */
-		$filter = \OC::$server->query($filterClass);
+		$filter = Server::get($filterClass);
 		$this->assertIsString($filter->getName());
 	}
 
@@ -57,9 +58,9 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataFilters
 	 * @param string $filterClass
 	 */
-	public function testGetPriority($filterClass) {
+	public function testGetPriority($filterClass): void {
 		/** @var IFilter $filter */
-		$filter = \OC::$server->query($filterClass);
+		$filter = Server::get($filterClass);
 		$priority = $filter->getPriority();
 		$this->assertIsInt($filter->getPriority());
 		$this->assertGreaterThanOrEqual(0, $priority);
@@ -70,9 +71,9 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataFilters
 	 * @param string $filterClass
 	 */
-	public function testGetIcon($filterClass) {
+	public function testGetIcon($filterClass): void {
 		/** @var IFilter $filter */
-		$filter = \OC::$server->query($filterClass);
+		$filter = Server::get($filterClass);
 		$this->assertIsString($filter->getIcon());
 		$this->assertStringStartsWith('http', $filter->getIcon());
 	}
@@ -81,9 +82,9 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataFilters
 	 * @param string $filterClass
 	 */
-	public function testFilterTypes($filterClass) {
+	public function testFilterTypes($filterClass): void {
 		/** @var IFilter $filter */
-		$filter = \OC::$server->query($filterClass);
+		$filter = Server::get($filterClass);
 		$this->assertIsArray($filter->filterTypes([]));
 	}
 
@@ -91,9 +92,9 @@ class GenericTest extends TestCase {
 	 * @dataProvider dataFilters
 	 * @param string $filterClass
 	 */
-	public function testAllowedApps($filterClass) {
+	public function testAllowedApps($filterClass): void {
 		/** @var IFilter $filter */
-		$filter = \OC::$server->query($filterClass);
+		$filter = Server::get($filterClass);
 		$this->assertIsArray($filter->allowedApps());
 	}
 }

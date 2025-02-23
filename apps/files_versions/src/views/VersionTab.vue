@@ -38,11 +38,11 @@
 <script>
 import path from 'path'
 
+import { getCurrentUser } from '@nextcloud/auth'
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import { emit, subscribe, unsubscribe } from '@nextcloud/event-bus'
-import { getCurrentUser } from '@nextcloud/auth'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
-import isMobile from '@nextcloud/vue/dist/Mixins/isMobile.js'
+import { useIsMobile } from '@nextcloud/vue/composables/useIsMobile'
+import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 
 import { fetchVersions, deleteVersion, restoreVersion, setVersionLabel } from '../utils/versions.ts'
 import Version from '../components/Version.vue'
@@ -57,9 +57,13 @@ export default {
 		VersionLabelDialog,
 		NcLoadingIcon,
 	},
-	mixins: [
-		isMobile,
-	],
+
+	setup() {
+		return {
+			isMobile: useIsMobile(),
+		}
+	},
+
 	data() {
 		return {
 			fileInfo: null,
@@ -177,7 +181,7 @@ export default {
 		/**
 		 * Handle restored event from Version.vue
 		 *
-		 * @param {import('../utils/versions.ts').Version} version
+		 * @param {import('../utils/versions.ts').Version} version The version to restore
 		 */
 		async handleRestore(version) {
 			// Update local copy of fileInfo as rendering depends on it.
@@ -217,7 +221,7 @@ export default {
 
 		/**
 		 * Handle label-updated event from Version.vue
-		 * @param {import('../utils/versions.ts').Version} version
+		 * @param {import('../utils/versions.ts').Version} version The version to update
 		 */
 		handleLabelUpdateRequest(version) {
 			this.showVersionLabelForm = true
@@ -226,7 +230,7 @@ export default {
 
 		/**
 		 * Handle label-updated event from Version.vue
-		 * @param {string} newLabel
+		 * @param {string} newLabel The new label
 		 */
 		async handleLabelUpdate(newLabel) {
 			const oldLabel = this.editedVersion.label
@@ -246,8 +250,7 @@ export default {
 		/**
 		 * Handle deleted event from Version.vue
 		 *
-		 * @param {import('../utils/versions.ts').Version} version
-		 * @param {string} newName
+		 * @param {import('../utils/versions.ts').Version} version The version to delete
 		 */
 		async handleDelete(version) {
 			const index = this.versions.indexOf(version)

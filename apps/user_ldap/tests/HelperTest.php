@@ -7,6 +7,8 @@ namespace OCA\User_LDAP\Tests;
 
 use OCA\User_LDAP\Helper;
 use OCP\IConfig;
+use OCP\IDBConnection;
+use OCP\Server;
 
 /**
  * @group DB
@@ -23,10 +25,10 @@ class HelperTest extends \Test\TestCase {
 		parent::setUp();
 
 		$this->config = $this->createMock(IConfig::class);
-		$this->helper = new Helper($this->config, \OC::$server->getDatabaseConnection());
+		$this->helper = new Helper($this->config, Server::get(IDBConnection::class));
 	}
 
-	public function testGetServerConfigurationPrefixes() {
+	public function testGetServerConfigurationPrefixes(): void {
 		$this->config->method('getAppKeys')
 			->with($this->equalTo('user_ldap'))
 			->willReturn([
@@ -40,7 +42,7 @@ class HelperTest extends \Test\TestCase {
 		$this->assertEquals(['', 's1'], $result);
 	}
 
-	public function testGetServerConfigurationPrefixesActive() {
+	public function testGetServerConfigurationPrefixesActive(): void {
 		$this->config->method('getAppKeys')
 			->with($this->equalTo('user_ldap'))
 			->willReturn([
@@ -65,7 +67,7 @@ class HelperTest extends \Test\TestCase {
 		$this->assertEquals(['s1'], $result);
 	}
 
-	public function testGetServerConfigurationHost() {
+	public function testGetServerConfigurationHost(): void {
 		$this->config->method('getAppKeys')
 			->with($this->equalTo('user_ldap'))
 			->willReturn([

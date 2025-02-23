@@ -40,7 +40,8 @@ class CORSMiddleware extends Middleware {
 	/** @var IThrottler */
 	private $throttler;
 
-	public function __construct(IRequest $request,
+	public function __construct(
+		IRequest $request,
 		ControllerMethodReflector $reflector,
 		Session $session,
 		IThrottler $throttler,
@@ -101,12 +102,12 @@ class CORSMiddleware extends Middleware {
 	 */
 	protected function hasAnnotationOrAttribute(ReflectionMethod $reflectionMethod, string $annotationName, string $attributeClass): bool {
 		if ($this->reflector->hasAnnotation($annotationName)) {
+			$this->logger->debug($reflectionMethod->getDeclaringClass()->getName() . '::' . $reflectionMethod->getName() . ' uses the @' . $annotationName . ' annotation and should use the #[' . $attributeClass . '] attribute instead');
 			return true;
 		}
 
 
 		if (!empty($reflectionMethod->getAttributes($attributeClass))) {
-			$this->logger->debug($reflectionMethod->getDeclaringClass()->getName() . '::' . $reflectionMethod->getName() . ' uses the @' . $annotationName . ' annotation and should use the #[' . $attributeClass . '] attribute instead');
 			return true;
 		}
 
@@ -135,7 +136,7 @@ class CORSMiddleware extends Middleware {
 				foreach ($response->getHeaders() as $header => $value) {
 					if (strtolower($header) === 'access-control-allow-credentials' &&
 					   strtolower(trim($value)) === 'true') {
-						$msg = 'Access-Control-Allow-Credentials must not be '.
+						$msg = 'Access-Control-Allow-Credentials must not be ' .
 							   'set to true in order to prevent CSRF';
 						throw new SecurityException($msg);
 					}

@@ -9,7 +9,9 @@ namespace OCA\Files_Sharing\Tests\Migration;
 use OCA\Files_Sharing\Migration\SetPasswordColumn;
 use OCA\Files_Sharing\Tests\TestCase;
 use OCP\IConfig;
+use OCP\IDBConnection;
 use OCP\Migration\IOutput;
+use OCP\Server;
 use OCP\Share\IShare;
 
 /**
@@ -19,7 +21,7 @@ use OCP\Share\IShare;
  */
 class SetPasswordColumnTest extends TestCase {
 
-	/** @var \OCP\IDBConnection */
+	/** @var IDBConnection */
 	private $connection;
 
 	/** @var IConfig|\PHPUnit\Framework\MockObject\MockObject */
@@ -33,7 +35,7 @@ class SetPasswordColumnTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->connection = \OC::$server->getDatabaseConnection();
+		$this->connection = Server::get(IDBConnection::class);
 		$this->config = $this->createMock(IConfig::class);
 		$this->migration = new SetPasswordColumn($this->connection, $this->config);
 
@@ -50,7 +52,7 @@ class SetPasswordColumnTest extends TestCase {
 		$query->delete($this->table)->execute();
 	}
 
-	public function testAddPasswordColumn() {
+	public function testAddPasswordColumn(): void {
 		$this->config->expects($this->once())
 			->method('getAppValue')
 			->with('files_sharing', 'installed_version', '0.0.0')

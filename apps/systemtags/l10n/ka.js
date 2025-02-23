@@ -62,6 +62,7 @@ OC.L10N.register(
     "Failed to update tag" : "Failed to update tag",
     "Deleted tag" : "Deleted tag",
     "Failed to delete tag" : "Failed to delete tag",
+    "Cancel" : "Cancel",
     "Loading collaborative tags …" : "Loading collaborative tags …",
     "Search or create collaborative tags" : "Search or create collaborative tags",
     "No tags to select, type to create a new tag" : "No tags to select, type to create a new tag",
@@ -78,14 +79,7 @@ OC.L10N.register(
     "Failed to load tags for file" : "Failed to load tags for file",
     "Failed to set tag for file" : "Failed to set tag for file",
     "Failed to delete tag for file" : "Failed to delete tag for file",
-    "Collaborative tagging functionality which shares tags among users." : "Collaborative tagging functionality which shares tags among users.",
-    "Collaborative tagging functionality which shares tags among users. Great for teams.\n\t(If you are a provider with a multi-tenancy installation, it is advised to deactivate this app as tags are shared.)" : "Collaborative tagging functionality which shares tags among users. Great for teams.\n\t(If you are a provider with a multi-tenancy installation, it is advised to deactivate this app as tags are shared.)",
     "This file has the tag {tag}" : "This file has the tag {tag}",
-    "This file has the tags {firstTags} and {lastTag}" : "This file has the tags {firstTags} and {lastTag}",
-    "No files in here" : "No files in here",
-    "No entries found in this folder" : "No entries found in this folder",
-    "Name" : "Name",
-    "Size" : "Size",
-    "Modified" : "Modified"
+    "This file has the tags {firstTags} and {lastTag}" : "This file has the tags {firstTags} and {lastTag}"
 },
 "nplurals=2; plural=(n!=1);");

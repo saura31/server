@@ -12,7 +12,7 @@ use OC\Authentication\Token\IProvider;
 use OC\CapabilitiesManager;
 use OC\Files\FilenameValidator;
 use OC\Share\Share;
-use OCA\Provisioning_API\Controller\AUserData;
+use OCA\Provisioning_API\Controller\AUserDataOCSController;
 use OCP\App\AppPathNotFoundException;
 use OCP\App\IAppManager;
 use OCP\Authentication\Exceptions\ExpiredTokenException;
@@ -30,6 +30,7 @@ use OCP\ILogger;
 use OCP\ISession;
 use OCP\IURLGenerator;
 use OCP\IUser;
+use OCP\ServerVersion;
 use OCP\Session\Exceptions\SessionNotAvailableException;
 use OCP\Share\IManager as IShareManager;
 use OCP\User\Backend\IPasswordConfirmationBackend;
@@ -41,19 +42,20 @@ class JSConfigHelper {
 	private $excludedUserBackEnds = ['user_saml' => true, 'user_globalsiteselector' => true];
 
 	public function __construct(
-		protected IL10N                $l,
-		protected Defaults             $defaults,
-		protected IAppManager          $appManager,
-		protected ISession             $session,
-		protected ?IUser               $currentUser,
-		protected IConfig              $config,
-		protected IGroupManager        $groupManager,
-		protected IniGetWrapper        $iniWrapper,
-		protected IURLGenerator        $urlGenerator,
-		protected CapabilitiesManager  $capabilitiesManager,
+		protected ServerVersion $serverVersion,
+		protected IL10N $l,
+		protected Defaults $defaults,
+		protected IAppManager $appManager,
+		protected ISession $session,
+		protected ?IUser $currentUser,
+		protected IConfig $config,
+		protected IGroupManager $groupManager,
+		protected IniGetWrapper $iniWrapper,
+		protected IURLGenerator $urlGenerator,
+		protected CapabilitiesManager $capabilitiesManager,
 		protected IInitialStateService $initialStateService,
-		protected IProvider            $tokenProvider,
-		protected FilenameValidator   $filenameValidator,
+		protected IProvider $tokenProvider,
+		protected FilenameValidator $filenameValidator,
 	) {
 	}
 
@@ -76,7 +78,7 @@ class JSConfigHelper {
 		$apps_paths = [];
 
 		if ($this->currentUser === null) {
-			$apps = $this->appManager->getInstalledApps();
+			$apps = $this->appManager->getEnabledApps();
 		} else {
 			$apps = $this->appManager->getEnabledAppsForUser($this->currentUser);
 		}
@@ -134,7 +136,7 @@ class JSConfigHelper {
 
 		$capabilities = $this->capabilitiesManager->getCapabilities(false, true);
 
-		$userFirstDay = $this->config->getUserValue($uid, 'core', AUserData::USER_FIELD_FIRST_DAY_OF_WEEK, null);
+		$userFirstDay = $this->config->getUserValue($uid, 'core', AUserDataOCSController::USER_FIELD_FIRST_DAY_OF_WEEK, null);
 		$firstDay = (int)($userFirstDay ?? $this->l->l('firstday', null));
 
 		$config = [
@@ -154,8 +156,8 @@ class JSConfigHelper {
 			'session_lifetime' => min($this->config->getSystemValue('session_lifetime', $this->iniWrapper->getNumeric('session.gc_maxlifetime')), $this->iniWrapper->getNumeric('session.gc_maxlifetime')),
 			'sharing.maxAutocompleteResults' => max(0, $this->config->getSystemValueInt('sharing.maxAutocompleteResults', Constants::SHARING_MAX_AUTOCOMPLETE_RESULTS_DEFAULT)),
 			'sharing.minSearchStringLength' => $this->config->getSystemValueInt('sharing.minSearchStringLength', 0),
-			'version' => implode('.', Util::getVersion()),
-			'versionstring' => \OC_Util::getVersionString(),
+			'version' => implode('.', $this->serverVersion->getVersion()),
+			'versionstring' => $this->serverVersion->getVersionString(),
 			'enable_non-accessible_features' => $this->config->getSystemValueBool('enable_non-accessible_features', true),
 		];
 
@@ -282,7 +284,7 @@ class JSConfigHelper {
 
 		// Echo it
 		foreach ($array as $setting => $value) {
-			$result .= 'var '. $setting . '='. $value . ';' . PHP_EOL;
+			$result .= 'var ' . $setting . '=' . $value . ';' . PHP_EOL;
 		}
 
 		return $result;

@@ -11,7 +11,6 @@ SPDX-FileCopyrightText: jden <jason@denizac.org>
 SPDX-FileCopyrightText: inherits developers
 SPDX-FileCopyrightText: escape-html developers
 SPDX-FileCopyrightText: defunctzombie
-SPDX-FileCopyrightText: assert developers
 SPDX-FileCopyrightText: Varun A P
 SPDX-FileCopyrightText: Tobias Koppers @sokra
 SPDX-FileCopyrightText: Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)
@@ -33,14 +32,12 @@ SPDX-FileCopyrightText: Joyent
 SPDX-FileCopyrightText: José F. Romaniello <jfromaniello@gmail.com> (http://joseoncode.com)
 SPDX-FileCopyrightText: Jordan Harband <ljharb@gmail.com>
 SPDX-FileCopyrightText: Jordan Harband
-SPDX-FileCopyrightText: John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
 SPDX-FileCopyrightText: John Molakvoæ (skjnldsv) <skjnldsv@protonmail.com>
 SPDX-FileCopyrightText: John Hiesey
 SPDX-FileCopyrightText: James Halliday
 SPDX-FileCopyrightText: Jacob Clevenger<https://github.com/wheatjs>
 SPDX-FileCopyrightText: Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me)
 SPDX-FileCopyrightText: Irakli Gozalishvili <rfobic@gmail.com> (http://jeditoolkit.com)
-SPDX-FileCopyrightText: Hypercontext
 SPDX-FileCopyrightText: Guillaume Chau <guillaume.b.chau@gmail.com>
 SPDX-FileCopyrightText: Guillaume Chau
 SPDX-FileCopyrightText: GitHub Inc.
@@ -56,7 +53,6 @@ SPDX-FileCopyrightText: Christoph Wurst
 SPDX-FileCopyrightText: Ben Drucker
 SPDX-FileCopyrightText: Arnout Kazemier
 SPDX-FileCopyrightText: Anthony Fu <https://github.com/antfu>
-SPDX-FileCopyrightText: Andris Reinman
 SPDX-FileCopyrightText: Amit Gupta (https://solothought.com)
 SPDX-FileCopyrightText: Amit Gupta (https://amitkumargupta.work/)
 SPDX-FileCopyrightText: @nextcloud/dialogs developers
@@ -67,7 +63,7 @@ This file is generated from multiple sources. Included packages:
 	- version: 2.4.0
 	- license: GPL-3.0-or-later
 - @nextcloud/axios
-	- version: 2.5.0
+	- version: 2.5.1
 	- license: GPL-3.0-or-later
 - @nextcloud/browser-storage
 	- version: 0.4.0
@@ -76,7 +72,7 @@ This file is generated from multiple sources. Included packages:
 	- version: 1.2.0
 	- license: GPL-3.0-or-later
 - @nextcloud/dialogs
-	- version: 6.0.0
+	- version: 6.1.1
 	- license: AGPL-3.0-or-later
 - semver
 	- version: 7.6.3
@@ -88,7 +84,7 @@ This file is generated from multiple sources. Included packages:
 	- version: 2.2.0
 	- license: GPL-3.0-or-later
 - @nextcloud/l10n
-	- version: 3.1.0
+	- version: 3.2.0
 	- license: GPL-3.0-or-later
 - @nextcloud/logger
 	- version: 3.0.2
@@ -97,28 +93,25 @@ This file is generated from multiple sources. Included packages:
 	- version: 3.0.1
 	- license: GPL-3.0-or-later
 - @nextcloud/vue
-	- version: 8.17.1
+	- version: 8.23.1
 	- license: AGPL-3.0-or-later
 - @vue/devtools-api
 	- version: 6.6.3
 	- license: MIT
 - @vueuse/components
-	- version: 11.0.3
+	- version: 11.1.0
 	- license: MIT
 - @vueuse/core
-	- version: 11.0.3
+	- version: 11.1.0
 	- license: MIT
 - @vueuse/shared
-	- version: 11.0.3
-	- license: MIT
-- assert
-	- version: 2.1.0
+	- version: 11.1.0
 	- license: MIT
 - available-typed-arrays
 	- version: 1.0.7
 	- license: MIT
 - axios
-	- version: 1.7.7
+	- version: 1.7.9
 	- license: MIT
 - balanced-match
 	- version: 1.0.2
@@ -147,23 +140,17 @@ This file is generated from multiple sources. Included packages:
 - charenc
 	- version: 0.0.2
 	- license: BSD-3-Clause
-- console-browserify
-	- version: 1.2.0
-	- license: MIT
 - crypt
 	- version: 0.0.2
 	- license: BSD-3-Clause
 - css-loader
-	- version: 6.11.0
+	- version: 7.1.2
 	- license: MIT
 - define-data-property
 	- version: 1.1.4
 	- license: MIT
-- define-properties
-	- version: 1.2.1
-	- license: MIT
 - dompurify
-	- version: 3.1.6
+	- version: 3.2.4
 	- license: (MPL-2.0 OR Apache-2.0)
 - es-define-property
 	- version: 1.0.0
@@ -184,7 +171,7 @@ This file is generated from multiple sources. Included packages:
 	- version: 1.0.0-beta.19
 	- license: MIT
 - focus-trap
-	- version: 7.5.4
+	- version: 7.6.0
 	- license: MIT
 - for-each
 	- version: 0.3.3
@@ -237,20 +224,11 @@ This file is generated from multiple sources. Included packages:
 - is-generator-function
 	- version: 1.0.10
 	- license: MIT
-- is-nan
-	- version: 1.3.2
-	- license: MIT
 - is-typed-array
 	- version: 1.1.13
 	- license: MIT
 - layerr
 	- version: 3.0.0
-	- license: MIT
-- linkify-string
-	- version: 4.1.3
-	- license: MIT
-- lodash.get
-	- version: 4.4.2
 	- license: MIT
 - md5
 	- version: 2.3.0
@@ -261,23 +239,11 @@ This file is generated from multiple sources. Included packages:
 - nested-property
 	- version: 4.0.0
 	- license: MIT
-- node-gettext
-	- version: 3.0.0
-	- license: MIT
 - buffer
 	- version: 6.0.3
 	- license: MIT
 - object-inspect
 	- version: 1.13.2
-	- license: MIT
-- object-is
-	- version: 1.1.6
-	- license: MIT
-- object-keys
-	- version: 1.1.1
-	- license: MIT
-- object.assign
-	- version: 4.1.5
 	- license: MIT
 - path-posix
 	- version: 1.0.0
@@ -292,7 +258,7 @@ This file is generated from multiple sources. Included packages:
 	- version: 0.12.7
 	- license: MIT
 - pinia
-	- version: 2.2.2
+	- version: 2.3.1
 	- license: MIT
 - possible-typed-array-names
 	- version: 1.0.0
@@ -303,6 +269,9 @@ This file is generated from multiple sources. Included packages:
 - punycode
 	- version: 1.4.1
 	- license: MIT
+- qs
+	- version: 6.13.0
+	- license: BSD-3-Clause
 - querystringify
 	- version: 2.2.0
 	- license: MIT
@@ -340,7 +309,7 @@ This file is generated from multiple sources. Included packages:
 	- version: 1.0.5
 	- license: MIT
 - style-loader
-	- version: 3.3.4
+	- version: 4.0.0
 	- license: MIT
 - tabbable
 	- version: 6.2.0
@@ -366,9 +335,6 @@ This file is generated from multiple sources. Included packages:
 - url-parse
 	- version: 1.5.10
 	- license: MIT
-- qs
-	- version: 6.13.0
-	- license: BSD-3-Clause
 - url
 	- version: 0.11.4
 	- license: MIT
@@ -382,7 +348,7 @@ This file is generated from multiple sources. Included packages:
 	- version: 15.11.1
 	- license: MIT
 - vue-material-design-icons
-	- version: 5.3.0
+	- version: 5.3.1
 	- license: MIT
 - vue
 	- version: 2.7.16

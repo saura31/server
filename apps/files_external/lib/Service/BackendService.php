@@ -8,13 +8,14 @@ namespace OCA\Files_External\Service;
 
 use OCA\Files_External\Config\IConfigHandler;
 use OCA\Files_External\Lib\Auth\AuthMechanism;
-
 use OCA\Files_External\Lib\Backend\Backend;
+
 use OCA\Files_External\Lib\Config\IAuthMechanismProvider;
 use OCA\Files_External\Lib\Config\IBackendProvider;
 use OCP\EventDispatcher\GenericEvent;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IConfig;
+use OCP\Server;
 
 /**
  * Service class to manage backend definitions
@@ -31,9 +32,6 @@ class BackendService {
 
 	/** Priority constants for PriorityTrait */
 	public const PRIORITY_DEFAULT = 100;
-
-	/** @var IConfig */
-	protected $config;
 
 	/** @var bool */
 	private $userMountingAllowed = true;
@@ -62,10 +60,8 @@ class BackendService {
 	 * @param IConfig $config
 	 */
 	public function __construct(
-		IConfig $config
+		protected IConfig $config,
 	) {
-		$this->config = $config;
-
 		// Load config values
 		if ($this->config->getAppValue('files_external', 'allow_user_mounting', 'yes') !== 'yes') {
 			$this->userMountingAllowed = false;
@@ -93,7 +89,7 @@ class BackendService {
 	private function callForRegistrations() {
 		static $eventSent = false;
 		if (!$eventSent) {
-			\OC::$server->get(IEventDispatcher::class)->dispatch(
+			Server::get(IEventDispatcher::class)->dispatch(
 				'OCA\\Files_External::loadAdditionalBackends',
 				new GenericEvent()
 			);
